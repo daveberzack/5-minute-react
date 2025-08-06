@@ -32,7 +32,7 @@ function Friends() {
           console.log("?"+f.id,f)
           return (
             <li key={f.id} className="bg-white text-black rounded-lg shadow-sm py-2 px-4 hover:shadow-lg transition-all duration-300 flex justify-between items-center">
-              <div className="w-12 h-12 rounded-md border-2 border-black mr-1">{f.character}</div>
+              <div style={{ backgroundColor: f.color }} className="w-12 h-12 rounded-xl border-2 border-black mr-1 text-4xl justify-center items-center font-bold flex">{f.character}</div>
               <span className="font-medium">{f.username}</span>
               <button
                 data-id={f.id}

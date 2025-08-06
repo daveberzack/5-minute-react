@@ -19,7 +19,7 @@ function AllGames() {
     <section id="other-games" className="max-w-4xl mx-auto p-4">
       <ul id="other-games-list" className="list-none p-0 space-y-2">
         { games?.map( f=> {
-          const isFavorite = userData?.favorites.includes(Number.parseInt(f.id));
+          const isFavorite = userData?.favorites.includes(f.id);
           const itemColors = isFavorite ? `bg-white` : `bg-blue-100`;
           const starFill = isFavorite ? 'fill-yellow-400' : 'fill-white';
           

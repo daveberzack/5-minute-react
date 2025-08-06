@@ -79,44 +79,66 @@ export const DataProvider = ({ children }) => {
         }
     }
 
-    function addFavorite(id) {
-        const newFavorites = [...userData.favorites];
-        newFavorites.push(id);
-        setFavorites(newFavorites);
-    }
-
-    function removeFavorite(id) {
-        const newFavorites = userData.favorites.filter(item => item != id);
-        setFavorites(newFavorites);
-    }
-
-    const setFriends = async (newFriendIds) => {
+    async function addFavorite(id) {
         try {
-            await dataService.setFriends(newFriendIds);
-            const newUserData = await dataService.loadData();
-            console.log(newUserData);
-            setUserData(newUserData);
+            await dataService.addFavorite(id);
+            setUserData(prevUserData => ({
+                ...prevUserData,
+                favorites: [...prevUserData.favorites, id]
+            }));
+        } catch (error) {
+            console.error("Error adding favorite:", error);
+        }
+    }
+
+    async function removeFavorite(id) {
+        try {
+            await dataService.removeFavorite(id);
+            setUserData(prevUserData => ({
+                ...prevUserData,
+                favorites: prevUserData.favorites.filter(item => item !== id)
+            }));
+        } catch (error) {
+            console.error("Error removing favorite:", error);
+        }
+    }
+
+    const setFriends = async (updatedFriends) => {
+        try {
+            // This function is now primarily for updating the local state
+            // The actual API calls for adding/removing are handled in addFriend/removeFriend
+            setUserData(prevUserData => ({
+                ...prevUserData,
+                friends: updatedFriends
+            }));
         } catch (error) {
             console.error("Error updating friends:", error);
         }
     }
 
     async function addFriend(username) {
-        const newFriendIds = userData.friends.map( f=> f.id );
-        const newFriend = await dataService.findUserByUsername(username);
-        if (newFriend){
-            newFriendIds.push(newFriend.id);
-            setFriends(newFriendIds);
-            return true;
+        try {
+            const updatedUserData = await dataService.addFriend(username);
+            if (updatedUserData) {
+                setUserData(updatedUserData);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Error adding friend:", error);
+            return false;
         }
-        else return false;
     }
 
     async function removeFriend(id) {
-        const newFriends = userData.friends.filter(item => item.id != id);
-        console.log("remove:"+id, newFriends);
-        const newFriendIds = newFriends.map( f=> f.id );
-        setFriends(newFriendIds);
+        try {
+            const updatedUserData = await dataService.removeFriend(id);
+            if (updatedUserData) {
+                setUserData(updatedUserData);
+            }
+        } catch (error) {
+            console.error("Error removing friend:", error);
+        }
     }
 
     function setGameToEditPlay(id) {
