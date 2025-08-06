@@ -4,8 +4,8 @@ import { useData } from '../utils/DataContext';
 
 function Login() {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("d1@example.com");
+    const [password, setPassword] = useState("Pass1234");
 
     const { signInWithEmail, userData } = useData();
     const navigate = useNavigate();

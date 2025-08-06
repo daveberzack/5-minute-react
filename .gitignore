@@ -22,3 +22,30 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
+*.log
+
+# ASP.NET Core
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json
+
+# Certificates
+*.pfx
+*.p12
+*.key
+*.crt
+*.pem
+
+# User secrets
+secrets.json
