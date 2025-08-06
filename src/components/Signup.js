@@ -1,14 +1,19 @@
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import UserForm from './UserForm';
 
 function Signup() {
     
-    const { signUpWithEmail } = useData();
+    const { register } = useAuth();
     const navigate = useNavigate();
 
-    const submitForm = (email, password, username, character, color)=>{
-        signUpWithEmail(email, password, username, character, color, ()=>navigate('/') );
+    const submitForm = async (email, password, username, character, color) => {
+        try {
+            await register(email, password, username, character, color);
+            navigate('/');
+        } catch (error) {
+            console.error('Signup failed:', error);
+        }
     }
     
     return (

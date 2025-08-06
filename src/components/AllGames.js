@@ -1,9 +1,9 @@
-// import { useState, useEffect } from 'react';
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
+import { games } from '../games';
 
 function AllGames() {
 
-  const { userData, games, addFavorite, removeFavorite } = useData();
+  const { user, addFavorite, removeFavorite } = useAuth();
 
   const onClickFavorite = (e)=> {
     const id = parseInt(e.target.dataset.id);
@@ -19,7 +19,7 @@ function AllGames() {
     <section id="other-games" className="max-w-4xl mx-auto p-4">
       <ul id="other-games-list" className="list-none p-0 space-y-2">
         { games?.map( f=> {
-          const isFavorite = userData?.favorites.includes(f.id);
+          const isFavorite = user?.favorites.includes(f.id);
           const itemColors = isFavorite ? `bg-white` : `bg-blue-100`;
           const starFill = isFavorite ? 'fill-yellow-400' : 'fill-white';
           
@@ -47,7 +47,7 @@ function AllGames() {
                   <p className="text-sm">{f.caption}</p>
                 </div>
               </a>
-              {!!userData?.username && addRemoveButton}
+              {!!user?.username && addRemoveButton}
             </li>
           );
         })}

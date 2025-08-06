@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 
 function Friends() {
 
-  const { userData, addFriend, removeFriend } = useData();
+  const { user, addFriend, removeFriend } = useAuth();
 
   const [newFriendName, setNewFriendName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -28,7 +28,7 @@ function Friends() {
       
       {/* Friends List */}
       <ul id="friends-list" className="list-none p-0 space-y-2 mb-8">
-        { userData?.friends?.map( f => {
+        { user?.friends?.map( f => {
           console.log("?"+f.id,f)
           return (
             <li key={f.id} className="bg-white text-black rounded-lg shadow-sm py-2 px-4 hover:shadow-lg transition-all duration-300 flex justify-between items-center">

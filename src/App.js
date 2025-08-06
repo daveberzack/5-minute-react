@@ -7,39 +7,38 @@ import EditScoreForm from './components/EditScoreForm';
 import Signup from './components/Signup';
 import Friends from './components/Friends';
 import Navbar from './components/Navbar';
-import { useData } from './utils/DataContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
+  const { isLoading, isAuthenticated } = useAuth();
   
-  const { userData } = useData();
-  
-  // Function to check authentication and redirect accordingly
-  const protectedRoute = (element) => {
-    if (!userData) {
-      return <Navigate to="/all" replace />;
-    }
-    return element;
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="App text-center">
       <Navbar />
       <main className="App-content max-w-xl mx-auto pt-10">
         <Routes>
-          <Route path="/favorites" element={protectedRoute(<FavoriteGames />)} />
-          <Route path="/edit-score" element={protectedRoute(<EditScoreForm />)} />
-          <Route path="/friends" element={protectedRoute(<Friends />)} />
-
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/all" element={<AllGames />} />
-
-          <Route path="/" element={ userData ? <FavoriteGames/> : <AllGames /> } />
+          
+          <Route path="/favorites" element={<ProtectedRoute><FavoriteGames /></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+          <Route path="/edit-score" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
+          
+          <Route path="/" element={isAuthenticated ? <Navigate to="/favorites" replace /> : <Navigate to="/all" replace />} />
         </Routes>
       </main>
     </div>
   );
 }
-
 
 export default App;

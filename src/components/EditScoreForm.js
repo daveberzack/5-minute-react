@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 
 function EditScoreForm() {
 
     const [score, setScore] = useState(0);
     const [message, setMessage] = useState("");
 
-    const { userData, gameIdPlayEditing, updatePlay, cancelEditPlay } = useData();
+    const { user, gameIdPlayEditing, updatePlay, cancelEditPlay } = useAuth();
 
     useEffect( ()=> {
-        if (!userData || !gameIdPlayEditing) return;
-        const currentScore = userData.todayPlays[gameIdPlayEditing]?.score || 0;
-        const currentMessage = userData.todayPlays[gameIdPlayEditing]?.message || "";
+        if (!user || !gameIdPlayEditing) return;
+        const currentScore = user.todayPlays[gameIdPlayEditing]?.score || 0;
+        const currentMessage = user.todayPlays[gameIdPlayEditing]?.message || "";
         setScore( currentScore )
         setMessage( currentMessage )
-    },[userData, gameIdPlayEditing]);
+    },[user, gameIdPlayEditing]);
 
     const submit = () => {
-        updatePlay(score, message);
+        updatePlay(gameIdPlayEditing, score, message);
     }
 
     if (gameIdPlayEditing) return (

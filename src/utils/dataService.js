@@ -1,7 +1,6 @@
 // API-based data service to replace Firebase
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
-let today = "";
 let currentUser = null;
 
 // Token management
@@ -112,8 +111,9 @@ const apiClient = {
 };
 
 export const dataService = {
-    init: function(todayString) {
-        today = todayString;
+
+    getToday() {
+        return new Date().toISOString().split("T")[0];
     },
 
     checkAutoLogin: function(setUserData) {

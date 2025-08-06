@@ -8,15 +8,17 @@ const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
 
-    const today = new Date().toISOString().split("T")[0];
-    dataService.init(today);
-
     const [userData, setUserData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [gameIdPlayEditing, setGameIdPlayEditing] = useState(null);
   
     // Check user authentication state on load
     useEffect(() => {
-        return dataService.checkAutoLogin(setUserData);
+        const cleanup = dataService.checkAutoLogin((user) => {
+            setUserData(user);
+            setIsLoading(false); // Set loading to false after check completes
+        });
+        return cleanup;
     }, []);
 
     const signInWithGoogle = async (onComplete) => {
@@ -183,7 +185,8 @@ export const DataProvider = ({ children }) => {
             setGameToEditPlay,
             gameIdPlayEditing,
             updatePlay,
-            cancelEditPlay
+            cancelEditPlay,
+            isLoading
         }}>
             {children}
         </DataContext.Provider>

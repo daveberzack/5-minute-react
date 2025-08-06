@@ -1,17 +1,24 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
 
     const [email, setEmail] = useState("d1@example.com");
     const [password, setPassword] = useState("Pass1234");
+    const [error, setError] = useState("");
 
-    const { signInWithEmail, userData } = useData();
+    const { login, isLoading } = useAuth();
     const navigate = useNavigate();
 
-    const signIn = () => {
-        signInWithEmail(email, password, ()=>navigate("/"));
+    const signIn = async () => {
+        try {
+            setError("");
+            await login(email, password);
+            navigate("/");
+        } catch (err) {
+            setError(err.message);
+        }
     }
 
     return (
@@ -43,11 +50,18 @@ function Login() {
                     />
                 </div>
                 
+                {error && (
+                    <div className="text-red-600 text-sm text-center mb-4">
+                        {error}
+                    </div>
+                )}
+                
                 <button
                     onClick={signIn}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-[#282850] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium"
+                    disabled={isLoading}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-[#282850] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Sign In
+                    {isLoading ? 'Signing In...' : 'Sign In'}
                 </button>
                 
                 <div className="text-center mt-4">

@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
-import { useData } from '../utils/DataContext';
+import { useAuth } from '../contexts/AuthContext';
+import { games } from '../games';
 
 function FavoriteGames() {
 
-  const { userData, games, removeFavorite, setGameToEditPlay } = useData();
+  const { user, removeFavorite, setGameToEditPlay } = useAuth();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
 
   useEffect(()=>{
-        let fg = userData?.favorites.map( favoriteId => {
+        let fg = user?.favorites.map( favoriteId => {
             return games.find( g => g.id == favoriteId )
         });
         fg = fg || [];
         fg.forEach( game => {
-          const myPlay = userData.todayPlays[game.id];
+          const myPlay = user.todayPlays[game.id];
           game.scores = {
             me: myPlay
           };
@@ -21,7 +22,7 @@ function FavoriteGames() {
         
         setFavoriteGames(fg);
         
-  },[games, userData]);
+  },[games, user]);
 
   const onClickEditPlay = (e)=> {
     const id = parseInt(e.target.dataset.id);
