@@ -12,6 +12,7 @@ function AllGames() {
   }
   const onClickUnfavorite = (e)=> {
     const id = parseInt(e.target.dataset.id);
+    console.log("unfavorite",id);
     removeFavorite(id);
   }
 

@@ -34,7 +34,6 @@ public class UserService : IUserService
             Username = user.Username,
             Character = user.Character,
             Color = user.Color,
-            ShowOther = user.ShowOther,
             Favorites = user.Favorites.Select(f => f.GameId).ToList(),
             FriendIds = user.Friends.Select(f => f.FriendId).ToList(),
             Friends = user.Friends.Select(f => new FriendDto
@@ -44,11 +43,7 @@ public class UserService : IUserService
                 Character = f.Friend.Character,
                 Color = f.Friend.Color
             }).ToList(),
-            TodayPlays = todayPlays,
-            Preferences = new UserPreferencesDto
-            {
-                ShowOther = user.ShowOther
-            }
+            TodayPlays = todayPlays
         };
     }
 
@@ -65,8 +60,7 @@ public class UserService : IUserService
             Email = user.Email,
             Username = user.Username,
             Character = user.Character,
-            Color = user.Color,
-            ShowOther = user.ShowOther
+            Color = user.Color
         };
     }
 
@@ -95,18 +89,6 @@ public class UserService : IUserService
         return await GetUserDataAsync(userId);
     }
 
-    public async Task<UserDto> UpdatePreferencesAsync(Guid userId, UpdatePreferencesRequest request)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null)
-            throw new InvalidOperationException("User not found");
-
-        user.ShowOther = request.ShowOther;
-        user.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetUserDataAsync(userId);
-    }
 
     public async Task<List<FriendDto>> GetFriendsAsync(Guid userId)
     {

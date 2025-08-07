@@ -26,11 +26,6 @@ export const userService = {
         return response.data;
     },
 
-    async updatePreferences(preferences) {
-        const response = await apiClient.put('/users/preferences', preferences);
-        return response.data;
-    },
-
     async searchUser(username) {
         const response = await apiClient.get(`/users/search/${encodeURIComponent(username)}`);
         return response.success ? response.data : null;

@@ -100,14 +100,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const updatePreferences = async (preferences) => {
-        try {
-            const updatedUser = await userService.updatePreferences(preferences);
-            setUser(updatedUser);
-        } catch (error) {
-            console.error("Error updating preferences:", error);
-        }
-    };
 
     const setGameToEditPlay = (gameId) => {
         setGameIdPlayEditing(gameId);
@@ -131,7 +123,6 @@ export const AuthProvider = ({ children }) => {
             addFavorite,
             removeFavorite,
             updatePlay,
-            updatePreferences,
             setGameToEditPlay,
             gameIdPlayEditing,
             cancelEditPlay
