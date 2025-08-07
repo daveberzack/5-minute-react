@@ -72,7 +72,7 @@ public class PlaysController : ControllerBase
             return StatusCode(500, ApiResponse<Dictionary<string, GamePlayDto>>.ErrorResponse("An error occurred while retrieving today's plays"));
         }
     }
-
+    
     [HttpPut("{gameId}")]
     public async Task<ActionResult<ApiResponse<UserDto>>> UpdatePlay(string gameId, [FromBody] GamePlayDto playData)
     {

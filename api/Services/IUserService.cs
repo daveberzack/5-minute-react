@@ -7,7 +7,6 @@ public interface IUserService
     Task<UserDto> GetUserDataAsync(Guid userId);
     Task<UserDto?> FindUserByUsernameAsync(string username);
     Task<UserDto> UpdateUserAsync(Guid userId, UpdateUserRequest request);
-    Task<UserDto> UpdatePreferencesAsync(Guid userId, UpdatePreferencesRequest request);
     Task<List<FriendDto>> GetFriendsAsync(Guid userId);
     Task<UserDto> AddFriendAsync(Guid userId, string friendUsername);
     Task<bool> RemoveFriendAsync(Guid userId, Guid friendId);
@@ -16,4 +15,5 @@ public interface IUserService
     Task<bool> RemoveFavoriteAsync(Guid userId, string gameId);
     Task<Dictionary<string, GamePlayDto>> GetTodayPlaysAsync(Guid userId, DateOnly date);
     Task<UserDto> UpdatePlayAsync(Guid userId, UpdatePlayRequest request);
+    Task<Dictionary<Guid, Dictionary<string, GamePlayDto>>> GetFriendsTodayPlaysAsync(Guid userId, DateOnly date);
 }

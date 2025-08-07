@@ -91,26 +91,4 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpPut("preferences")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> UpdatePreferences([FromBody] UpdatePreferencesRequest request)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var user = await _userService.UpdatePreferencesAsync(userId, request);
-            return Ok(ApiResponse<UserDto>.SuccessResponse(user, "Preferences updated successfully"));
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return Unauthorized(ApiResponse<UserDto>.ErrorResponse(ex.Message));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return NotFound(ApiResponse<UserDto>.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ApiResponse<UserDto>.ErrorResponse("An error occurred while updating preferences"));
-        }
-    }
 }

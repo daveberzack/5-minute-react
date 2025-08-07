@@ -16,16 +16,52 @@ public class UserService : IUserService
 
     public async Task<UserDto> GetUserDataAsync(Guid userId)
     {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        
+        // Single optimized query to get all data at once
         var user = await _context.Users
             .Include(u => u.Friends).ThenInclude(f => f.Friend)
             .Include(u => u.Favorites)
+            .Include(u => u.GamePlays.Where(gp => gp.PlayDate == today))
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
             throw new InvalidOperationException("User not found");
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var todayPlays = await GetTodayPlaysAsync(userId, today);
+        // Get friend IDs for the friends' plays query
+        var friendIds = user.Friends.Select(f => f.FriendId).ToList();
+        
+        // Single query to get all friends' today plays
+        var friendsPlays = await _context.GamePlays
+            .Where(gp => friendIds.Contains(gp.UserId) && gp.PlayDate == today)
+            .ToListAsync();
+
+        // Process user's today plays
+        var todayPlays = user.GamePlays
+            .ToDictionary(
+                gp => gp.GameId,
+                gp => new GamePlayDto
+                {
+                    Score = gp.Score,
+                    Message = gp.Message
+                }
+            );
+
+        // Process friends' today plays
+        var friendsTodayPlays = friendsPlays
+            .GroupBy(gp => gp.UserId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.ToDictionary(
+                    gp => gp.GameId,
+                    gp => new GamePlayDto
+                    {
+                        Score = gp.Score,
+                        Message = gp.Message
+                    }
+                )
+            );
+
 
         return new UserDto
         {
@@ -34,7 +70,6 @@ public class UserService : IUserService
             Username = user.Username,
             Character = user.Character,
             Color = user.Color,
-            ShowOther = user.ShowOther,
             Favorites = user.Favorites.Select(f => f.GameId).ToList(),
             FriendIds = user.Friends.Select(f => f.FriendId).ToList(),
             Friends = user.Friends.Select(f => new FriendDto
@@ -42,13 +77,10 @@ public class UserService : IUserService
                 Id = f.Friend.Id,
                 Username = f.Friend.Username,
                 Character = f.Friend.Character,
-                Color = f.Friend.Color
+                Color = f.Friend.Color,
+                TodayPlays = friendsTodayPlays.ContainsKey(f.FriendId) ? friendsTodayPlays[f.FriendId] : new Dictionary<string, GamePlayDto>()
             }).ToList(),
-            TodayPlays = todayPlays,
-            Preferences = new UserPreferencesDto
-            {
-                ShowOther = user.ShowOther
-            }
+            TodayPlays = todayPlays
         };
     }
 
@@ -65,8 +97,7 @@ public class UserService : IUserService
             Email = user.Email,
             Username = user.Username,
             Character = user.Character,
-            Color = user.Color,
-            ShowOther = user.ShowOther
+            Color = user.Color
         };
     }
 
@@ -95,18 +126,6 @@ public class UserService : IUserService
         return await GetUserDataAsync(userId);
     }
 
-    public async Task<UserDto> UpdatePreferencesAsync(Guid userId, UpdatePreferencesRequest request)
-    {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null)
-            throw new InvalidOperationException("User not found");
-
-        user.ShowOther = request.ShowOther;
-        user.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetUserDataAsync(userId);
-    }
 
     public async Task<List<FriendDto>> GetFriendsAsync(Guid userId)
     {
@@ -257,5 +276,41 @@ public class UserService : IUserService
 
         await _context.SaveChangesAsync();
         return await GetUserDataAsync(userId);
+    }
+
+    public async Task<Dictionary<Guid, Dictionary<string, GamePlayDto>>> GetFriendsTodayPlaysAsync(Guid userId, DateOnly date)
+    {
+        var user = await _context.Users
+            .Include(u => u.Friends).ThenInclude(f => f.Friend)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+            throw new InvalidOperationException("User not found");
+
+        var friendIds = user.Friends.Select(f => f.FriendId).ToList();
+        
+        var friendsPlays = await _context.GamePlays
+            .Where(gp => friendIds.Contains(gp.UserId) && gp.PlayDate == date)
+            .ToListAsync();
+
+        var result = new Dictionary<Guid, Dictionary<string, GamePlayDto>>();
+        
+        foreach (var friend in user.Friends)
+        {
+            var friendPlays = friendsPlays
+                .Where(gp => gp.UserId == friend.FriendId)
+                .ToDictionary(
+                    gp => gp.GameId,
+                    gp => new GamePlayDto
+                    {
+                        Score = gp.Score,
+                        Message = gp.Message
+                    }
+                );
+            
+            result[friend.FriendId] = friendPlays;
+        }
+
+        return result;
     }
 }
