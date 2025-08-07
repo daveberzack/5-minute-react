@@ -22,10 +22,10 @@ function Login() {
     }
 
     return (
-        <section id="login" className="max-w-md mx-2 mt-10 p-6 bg-white rounded-lg shadow-lg">
-            <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">Login</h3>
+        <section id="login" className="max-w-md mx-2 mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg">
+            <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6">Login</h3>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
                 <div>
                     <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                     <input
@@ -34,7 +34,7 @@ function Login() {
                         placeholder="your@email.com"
                         value={email}
                         onChange={(e)=>{ setEmail(e.target.value) }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                 </div>
                 
@@ -46,12 +46,12 @@ function Login() {
                         placeholder="••••••••"
                         value={password}
                         onChange={(e)=>{ setPassword(e.target.value) }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                     />
                 </div>
                 
                 {error && (
-                    <div className="text-red-600 text-sm text-center mb-4">
+                    <div className="text-red-600 text-sm text-center mb-3 sm:mb-4">
                         {error}
                     </div>
                 )}
@@ -59,12 +59,12 @@ function Login() {
                 <button
                     onClick={signIn}
                     disabled={isLoading}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-[#282850] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-blue-600 text-white py-2.5 sm:py-2 px-4 text-sm sm:text-base rounded-md hover:bg-[#282850] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {isLoading ? 'Signing In...' : 'Sign In'}
                 </button>
                 
-                <div className="text-center mt-4">
+                <div className="text-center mt-3 sm:mt-4">
                     <p className="text-sm text-gray-600">
                         Don't have an account?{' '}
                         <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">

@@ -24,7 +24,7 @@ function App() {
   return (
     <div className="App text-center">
       <Navbar />
-      <main className="App-content max-w-xl mx-auto pt-10">
+      <main className="App-content max-w-xl mx-auto pt-12 px-1 sm:px-2 sm:pt-16">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
