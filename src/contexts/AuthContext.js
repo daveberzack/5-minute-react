@@ -8,11 +8,12 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [gameIdPlayEditing, setGameIdPlayEditing] = useState(null);
 
     useEffect(() => {
         authService.checkAutoLogin()
-            .then(setUser)
+            .then((user) => {
+                setUser(user);
+            })
             .catch(() => setUser(null))
             .finally(() => setIsLoading(false));
     }, []);
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const user = await authService.login(email, password);
+            const user = await authService.login(email, password);                
             setUser(user);
             return user;
         } catch (err) {
@@ -100,15 +101,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-
-    const setGameToEditPlay = (gameId) => {
-        setGameIdPlayEditing(gameId);
-    };
-
-    const cancelEditPlay = () => {
-        setGameIdPlayEditing(null);
-    };
-
     return (
         <AuthContext.Provider value={{
             user,
@@ -122,10 +114,7 @@ export const AuthProvider = ({ children }) => {
             removeFriend,
             addFavorite,
             removeFavorite,
-            updatePlay,
-            setGameToEditPlay,
-            gameIdPlayEditing,
-            cancelEditPlay
+            updatePlay
         }}>
             {children}
         </AuthContext.Provider>

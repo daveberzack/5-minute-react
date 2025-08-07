@@ -15,4 +15,5 @@ public interface IUserService
     Task<bool> RemoveFavoriteAsync(Guid userId, string gameId);
     Task<Dictionary<string, GamePlayDto>> GetTodayPlaysAsync(Guid userId, DateOnly date);
     Task<UserDto> UpdatePlayAsync(Guid userId, UpdatePlayRequest request);
+    Task<Dictionary<Guid, Dictionary<string, GamePlayDto>>> GetFriendsTodayPlaysAsync(Guid userId, DateOnly date);
 }

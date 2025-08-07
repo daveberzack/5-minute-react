@@ -21,6 +21,7 @@ public class FriendDto
     public string Username { get; set; } = string.Empty;
     public string Character { get; set; } = string.Empty;
     public string Color { get; set; } = string.Empty;
+    public Dictionary<string, GamePlayDto> TodayPlays { get; set; } = new();
 }
 
 public class UpdateUserRequest

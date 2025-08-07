@@ -51,8 +51,7 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Username = request.Username,
             Character = request.Character,
-            Color = request.Color,
-            ShowOther = true
+            Color = request.Color
         };
 
         _context.Users.Add(user);
@@ -70,12 +69,10 @@ public class AuthService : IAuthService
             Username = user.Username,
             Character = user.Character,
             Color = user.Color,
-            ShowOther = user.ShowOther,
             Favorites = new List<string>(),
             FriendIds = new List<Guid>(),
             Friends = new List<FriendDto>(),
-            TodayPlays = new Dictionary<string, GamePlayDto>(),
-            Preferences = new UserPreferencesDto { ShowOther = user.ShowOther }
+            TodayPlays = new Dictionary<string, GamePlayDto>()
         };
 
         return new AuthResponse
@@ -108,12 +105,10 @@ public class AuthService : IAuthService
             Username = user.Username,
             Character = user.Character,
             Color = user.Color,
-            ShowOther = user.ShowOther,
             Favorites = new List<string>(),
             FriendIds = new List<Guid>(),
             Friends = new List<FriendDto>(),
-            TodayPlays = new Dictionary<string, GamePlayDto>(),
-            Preferences = new UserPreferencesDto { ShowOther = user.ShowOther }
+            TodayPlays = new Dictionary<string, GamePlayDto>()
         };
 
         return new AuthResponse
@@ -147,7 +142,6 @@ public class AuthService : IAuthService
                     Username = payload.Name ?? payload.Email.Split('@')[0],
                     Character = "👤", // Default character
                     Color = "#333366", // Default color
-                    ShowOther = true
                 };
 
                 // Ensure username is unique
@@ -175,12 +169,10 @@ public class AuthService : IAuthService
                 Username = user.Username,
                 Character = user.Character,
                 Color = user.Color,
-                ShowOther = user.ShowOther,
                 Favorites = new List<string>(),
                 FriendIds = new List<Guid>(),
                 Friends = new List<FriendDto>(),
-                TodayPlays = new Dictionary<string, GamePlayDto>(),
-                Preferences = new UserPreferencesDto { ShowOther = user.ShowOther }
+                TodayPlays = new Dictionary<string, GamePlayDto>()
             };
 
             return new AuthResponse

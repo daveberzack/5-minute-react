@@ -29,8 +29,6 @@ public class User
     [MaxLength(7)]
     public string Color { get; set; } = string.Empty;
 
-    public bool ShowOther { get; set; } = true;
-
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

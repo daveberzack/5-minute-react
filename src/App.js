@@ -32,7 +32,7 @@ function App() {
           
           <Route path="/favorites" element={<ProtectedRoute><FavoriteGames /></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
-          <Route path="/edit-score" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
+          <Route path="/edit-score/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
           
           <Route path="/" element={isAuthenticated ? <Navigate to="/favorites" replace /> : <Navigate to="/all" replace />} />
         </Routes>

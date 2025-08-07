@@ -22,7 +22,10 @@ export const userService = {
     },
 
     async updatePlay(gameId, score, message) {
-        const response = await apiClient.put(`/plays/${gameId}`, { score, message });
+        const response = await apiClient.put(`/plays/${gameId}`, {
+            Score: score?.toString() || '',
+            Message: message || ''
+        });
         return response.data;
     },
 
