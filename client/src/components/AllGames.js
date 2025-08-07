@@ -40,9 +40,9 @@ function AllGames() {
           );
           
           return (
-            <li key={f.id} className={itemColors+" text-black transition-all duration-800 rounded-lg shadow-sm py-1 px-2 hover:shadow-lg flex justify-between items-center"}>
+            <li key={f.id} className={itemColors+" text-black transition-all duration-800 rounded-lg shadow-sm py-1 px-1 hover:shadow-lg flex justify-between items-center"}>
               <a href={f.url} className="block flex hover:text-blue-600 flex-1 min-w-0">
-                <img src={"./img/games/"+f.image} className="w-8 h-8 sm:w-9 sm:h-9 rounded-md border-2 border-black mr-2 flex-shrink-0"/>
+                <img src={"./img/games/"+f.image} className="w-10 h-10 sm:w-14 sm:h-14 rounded-md border-2 border-black mr-2 flex-shrink-0"/>
                 <div className="text-left min-w-0 flex-1">
                   <p className="font-bold text-base sm:text-lg truncate">{f.name}</p>
                   <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">{f.caption}</p>

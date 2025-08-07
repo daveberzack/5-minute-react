@@ -58,7 +58,7 @@ function FavoriteGames() {
     <section id="favorite-games" className="max-w-4xl mx-auto p-1 sm:p-2">
       {/* Header row showing user characters */}
       {favoriteGames.length > 0 && (
-        <div className="flex justify-between items-center mb-2 px-2">
+        <div className="flex justify-between items-center mb-1 px-1">
           <div className="flex-1 min-w-0 mr-2">
             {/* Empty space to align with game info */}
           </div>
@@ -99,7 +99,7 @@ function FavoriteGames() {
                   data-id={f.id}
                   data-message={play.message || ''}
                   onClick={isUser ? onClickEditPlay : (hasMessage ? (e) => onClickShowMessage(e, play.message, friend.username) : undefined)}
-                  className={`${isUser ? 'bg-blue-600 hover:bg-[#282850]' : 'bg-gray-500 hover:bg-gray-600'} text-white w-8 h-8 sm:w-9 sm:h-9 rounded transition-colors duration-200 font-medium relative text-xs flex items-center justify-center ${!isUser && !hasMessage ? 'cursor-default' : 'cursor-pointer'}`}
+                  className={`${isUser ? 'bg-blue-600 hover:bg-[#282850]' : 'bg-gray-500 hover:bg-gray-600'} text-white w-8 h-8 sm:w-9 sm:h-9 rounded transition-colors duration-200 font-medium relative ${play.score.toString().length === 1 ? 'text-base sm:text-lg' : 'text-xs'} flex items-center justify-center ${!isUser && !hasMessage ? 'cursor-default' : 'cursor-pointer'}`}
                   title={isUser ? "Click to edit score" : (hasMessage ? `${friend.username}: Click to view message` : `${friend.username}: ${play.score}`)}
                 >
                   {play.score}
@@ -157,7 +157,7 @@ function FavoriteGames() {
           });
 
           return (
-            <li key={f.id} className="bg-white text-black rounded-lg shadow-sm py-1 px-2 hover:shadow-lg transition-all duration-300 flex justify-between items-center">
+            <li key={f.id} className="bg-white text-black rounded-lg shadow-sm py-1 px-1 hover:shadow-lg transition-all duration-300 flex justify-between items-center">
               <a href={f.url} className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-2">
                 <img src={"./img/games/"+f.image} className="w-8 h-8 sm:w-9 sm:h-9 rounded-md border-2 border-black mr-2 flex-shrink-0"/>
                 <p className="font-bold text-left text-base sm:text-lg truncate">{f.name}</p>
