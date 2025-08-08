@@ -46,11 +46,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "https://five-minute-react-2.onrender.com/" };
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyMethod()
+        policy.WithOrigins("https://five-minute-react-2.onrender.com")
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
