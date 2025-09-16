@@ -49,20 +49,22 @@ function Navbar() {
 
   const getTabClass = (path) => {
     const isActive = location.pathname === path;
-    return `flex items-center justify-center px-3 py-2 rounded-t-lg transition-all duration-200 ${
+    return `flex items-center justify-center px-3 py-1.5 rounded-lg transition-all duration-300 relative overflow-hidden ${
       isActive
-        ? 'bg-gray-100 text-gray-800 border-b-2 border-blue-500'
-        : 'text-white hover:bg-gray-700'
+        ? 'bg-gray-200 text-gray-800 shadow-md scale-105'
+        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800 hover:scale-105'
     }`;
   };
 
   if (isAuthenticated && user?.username) {
     return (
-      <nav className="bg-gray-800 py-2 fixed w-full z-10">
-        <div className="flex items-center justify-between px-4">
+      <nav className="navbar-glass py-2.5 fixed w-full z-50 shadow-lg">
+        <div className="flex items-center justify-between px-3">
           {/* Logo and Navigation Tabs */}
           <div className="flex items-center space-x-4">
-            <DuckLogo />
+            <div className="pulse-on-hover">
+              <DuckLogo />
+            </div>
             <div className="flex space-x-1">
               <Link to="/favorites" className={getTabClass('/favorites')} title="Favorites">
                 <FavoritesIcon />
@@ -76,31 +78,43 @@ function Navbar() {
             </div>
           </div>
           
-          {/* Logout Button */}
-          <button
-            onClick={logout}
-            className="flex items-center justify-center p-2 text-white hover:bg-gray-700 rounded transition-colors duration-200"
-            title="Log Out"
-          >
-            <LogoutIcon />
-          </button>
+          {/* User Info and Logout */}
+          <div className="flex items-center space-x-2">
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 border-gray-300 shadow-md"
+              style={{ backgroundColor: user?.color || '#4a90e2', color: 'white' }}
+              title={user?.username}
+            >
+              {user?.character || '👤'}
+            </div>
+            <button
+              onClick={logout}
+              className="flex items-center justify-center p-1.5 text-gray-600 hover:bg-gray-100 hover:text-gray-800 rounded-lg transition-all duration-300 hover:scale-105"
+              title="Log Out"
+            >
+              <LogoutIcon />
+            </button>
+          </div>
         </div>
       </nav>
     );
   } else {
     return (
-      <nav className="bg-gray-800 py-2 fixed w-full z-10">
-        <div className="flex items-center justify-between px-4">
+      <nav className="navbar-glass py-2.5 fixed w-full z-50 shadow-lg">
+        <div className="flex items-center justify-between px-3">
           {/* Logo */}
-          <DuckLogo />
+          <div className="pulse-on-hover">
+            <DuckLogo />
+          </div>
           
           {/* Login Button */}
           <Link
             to="/login"
-            className="flex items-center justify-center p-2 text-white hover:bg-gray-700 rounded transition-colors duration-200"
+            className="btn-gradient flex items-center justify-center px-3 py-1.5 rounded-lg transition-all duration-300 hover:scale-105 shadow-md text-sm"
             title="Log In"
           >
             <LoginIcon />
+            <span className="ml-1.5 font-medium">Login</span>
           </Link>
         </div>
       </nav>

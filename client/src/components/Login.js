@@ -22,59 +22,75 @@ function Login() {
     }
 
     return (
-        <section id="login" className="max-w-md mx-2 mt-4 sm:mt-10 p-4 sm:p-6 bg-white rounded-lg shadow-lg">
-            <h3 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-4 sm:mb-6">Login</h3>
-            
-            <div className="space-y-3 sm:space-y-4">
-                <div>
-                    <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input
-                        id="login-email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={email}
-                        onChange={(e)=>{ setEmail(e.target.value) }}
-                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
-                </div>
-                
-                <div>
-                    <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                        type="password"
-                        id="login-password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e)=>{ setPassword(e.target.value) }}
-                        className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
-                </div>
-                
-                {error && (
-                    <div className="text-red-600 text-sm text-center mb-3 sm:mb-4">
-                        {error}
+        <div className="min-h-screen flex items-center justify-center p-3 relative z-10">
+            <section id="login" className="glass-card max-w-md w-full p-4 sm:p-6 shadow-xl">
+                <div className="text-center mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H19V9Z"/>
+                        </svg>
                     </div>
-                )}
-                
-                <button
-                    onClick={signIn}
-                    disabled={isLoading}
-                    className="w-full bg-blue-600 text-white py-2.5 sm:py-2 px-4 text-sm sm:text-base rounded-md hover:bg-[#282850] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isLoading ? 'Signing In...' : 'Sign In'}
-                </button>
-                
-                <div className="text-center mt-3 sm:mt-4">
-                    <p className="text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <Link to="/signup" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                            Sign Up
-                        </Link>
-                    </p>
+                    <h3 className="text-xl sm:text-2xl font-bold text-gradient mb-1">Welcome Back</h3>
+                    <p className="text-gray-600 text-sm">Sign in to track your game scores</p>
                 </div>
                 
-            </div>
-        </section>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input
+                            id="login-email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={email}
+                            onChange={(e)=>{ setEmail(e.target.value) }}
+                            className="form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input
+                            type="password"
+                            id="login-password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e)=>{ setPassword(e.target.value) }}
+                            className="form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
+                        />
+                    </div>
+                    
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm text-center">
+                            {error}
+                        </div>
+                    )}
+                    
+                    <button
+                        onClick={signIn}
+                        disabled={isLoading}
+                        className="btn-gradient w-full py-2.5 px-4 text-sm rounded-lg font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                        {isLoading ? (
+                            <>
+                                <div className="loading-spinner w-4 h-4 mr-2"></div>
+                                Signing In...
+                            </>
+                        ) : (
+                            'Sign In'
+                        )}
+                    </button>
+                    
+                    <div className="text-center pt-3 border-t border-gray-200">
+                        <p className="text-sm text-gray-600">
+                            Don't have an account?{' '}
+                            <Link to="/signup" className="text-gradient font-medium hover:underline transition-all duration-300">
+                                Sign Up
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </div>
     );
 }
 

@@ -42,9 +42,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Configure CORS
+var allowOrigins = "AllowReactApp";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", policy =>
+    options.AddPolicy(allowOrigins, policy =>
     {
         policy.WithOrigins("https://five-minute-react-2.onrender.com")
               .AllowAnyHeader()
@@ -111,7 +112,7 @@ if (app.Environment.IsDevelopment())
 // app.UseHttpsRedirection();
 
 // Enable CORS
-app.UseCors("AllowReactApp");
+app.UseCors(allowOrigins);
 
 
 app.UseAuthentication();

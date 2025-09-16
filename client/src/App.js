@@ -15,16 +15,20 @@ function App() {
   
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-lg">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="glass-card p-6 rounded-xl shadow-xl text-center">
+          <div className="loading-spinner mx-auto mb-3"></div>
+          <h3 className="text-lg font-semibold text-gradient mb-1">Loading</h3>
+          <p className="text-gray-600 text-sm">Preparing your gaming experience...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="App text-center">
+    <div className="App text-center min-h-screen relative">
       <Navbar />
-      <main className="App-content max-w-xl mx-auto pt-12 px-1 sm:px-2 sm:pt-16">
+      <main className="App-content max-w-5xl mx-auto pt-16 px-2 sm:px-3 sm:pt-18 pb-6">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
