@@ -67,38 +67,47 @@ function FavoriteGames() {
 
   return (
     <section id="favorite-games" className="">
-      {/* Header row with title and user characters */}
-      {favoriteGames.length > 0 ? (
-        <div className="flex justify-between items-center mb-3">
-          <div className="flex items-center space-x-1 flex-shrink-0">
-            {/* Current user block */}
-            <div
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
-              style={{ backgroundColor: user?.color || '#4a90e2', color: 'white' }}
-              title={`You (${user?.username})`}
-            >
-              {user?.character || '👤'}
-            </div>
-            
-            {/* Friends blocks */}
-            {user?.friends?.map(friend => (
-              <div
-                key={friend.id}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
-                style={{ backgroundColor: friend.color, color: 'white' }}
-                title={friend.username}
-              >
-                {friend.character}
+      {favoriteGames.length > 0 && (
+        <>
+          {/* Favorites tab */}
+          <div className="flex justify-start items-start" style={{ margin: '0.3125rem', marginBottom: 0 }}>
+            <div className="bg-blue-800 flex" style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}>
+              <div className="bg-blue-100 text-blue-800 px-4 py-2 font-bold" style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}>
+                Favorites
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <h2 className="text-2xl font-bold text-white text-left mb-3">Add Favorites</h2>
+          
+          {/* Header row with user characters */}
+          <div className="flex justify-between items-center bg-white" style={{ margin: '0 0.3125rem 0.3125rem 0.3125rem', borderRadius: '0 0 0.3125rem 0.3125rem', padding: '0.75rem 0.5rem' }}>
+            <div className="flex items-center space-x-1 flex-shrink-0">
+              {/* Current user block */}
+              <div
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
+                style={{ backgroundColor: user?.color || '#4a90e2', color: 'white' }}
+                title={`You (${user?.username})`}
+              >
+                {user?.character || '👤'}
+              </div>
+              
+              {/* Friends blocks */}
+              {user?.friends?.map(friend => (
+                <div
+                  key={friend.id}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
+                  style={{ backgroundColor: friend.color, color: 'white' }}
+                  title={friend.username}
+                >
+                  {friend.character}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
       
-      <ul id="favorite-games-list" className="list-none p-0 space-y-1.5 w-full">
-        { favoriteGames?.map( f => {
+      <ul id="favorite-games-list" className="list-none p-0 w-full">
+        { favoriteGames?.map( (f, index) => {
           // Create score blocks for user and friends
           const createScoreBlock = (play, isUser = false, friend = null) => {
             if (play) {
@@ -155,29 +164,22 @@ function FavoriteGames() {
             }
           };
 
-          // // Create all score blocks
-          // const scoreBlocks = [];
-          
-          // // User's score (leftmost)
-          // scoreBlocks.push(createScoreBlock(f.scores?.me, true));
-          
-          // // Friends' scores
-          // Object.values(f.scores?.friends || {}).forEach(({ play, friend }) => {
-          //   scoreBlocks.push(createScoreBlock(play, false, friend));
-          // });
+          // First item connects to user characters section, others have normal margins
+          const marginStyle = index === 0
+            ? { margin: '0 0.3125rem 0.3125rem 0.3125rem', borderRadius: '0 0 0.3125rem 0.3125rem' }
+            : { margin: '0.3125rem', borderRadius: '0.3125rem' };
 
           return (
-            <li key={f.id} className="w-full text-white py-1.5 px-2 flex justify-between items-center group relative bg-gradient-to-b from-white/5 via-white/2 to-transparent">
-              <a href={f.url} className="block flex hover:text-blue-300 items-center flex-1 min-w-0 mr-3 transition-colors duration-300">
+            <li key={f.id} className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white" style={marginStyle}>
+              <a href={f.url} className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-3 transition-colors duration-300">
                 <div className="relative">
                   <img
                     src={"./img/games/"+f.image}
                     className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300"
                     alt={f.name}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-lg pointer-events-none"></div>
                 </div>
-                <p className="font-bold text-left text-base sm:text-lg truncate group-hover:text-blue-300 transition-colors duration-300">{f.name}</p>
+                <p className="font-bold text-left text-base sm:text-lg truncate text-blue-800 group-hover:text-blue-600 transition-colors duration-300">{f.name}</p>
               </a>
             </li>
           );

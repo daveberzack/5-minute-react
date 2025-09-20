@@ -15,13 +15,13 @@ function AllGames() {
   }
 
   return (
-    <section id="other-games" >     
-      <ul id="other-games-list" className="list-none p-0 space-y-1.5 w-full">
-        { games?.map( f=> {
+    <section id="other-games">
+      <ul id="other-games-list" className="list-none p-0 w-full">
+        { games?.map( (f, index) => {
           const isFavorite = favorites.includes(f.id*1);
 
           const addRemoveButton = (
-              <img 
+              <img
                 data-id={f.id}
                 onClick={isFavorite ? onClickUnfavorite : onClickFavorite}
                 className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center focus:outline-none flex-shrink-0"
@@ -29,8 +29,13 @@ function AllGames() {
               />
           );
           
+          // First item connects to tab, others have normal margins
+          const marginStyle = index === 0
+            ? { margin: '0 0.3125rem 0.3125rem 0.3125rem', borderRadius: '0 0 0.3125rem 0.3125rem' }
+            : { margin: '0.3125rem', borderRadius: '0.3125rem' };
+          
           return (
-            <li key={f.id} className="w-full text-white py-1.5 px-2 flex justify-between items-center group relative bg-gradient-to-b from-white/5 via-white/2 to-transparent">
+            <li key={f.id} className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white" style={marginStyle}>
               <a href={f.url} className="block flex flex-1 min-w-0">
                 <img
                     src={"./img/games/"+f.image}
@@ -38,8 +43,8 @@ function AllGames() {
                     alt={f.name}
                 />
                 <div className="text-left min-w-0 flex-1 flex flex-col justify-center">
-                  <p className="font-bold text-base sm:text-lg truncate mb-0.5 ">{f.name}</p>
-                  <p className="text-xs sm:text-sm text-white/70 line-clamp-2">{f.caption}</p>
+                  <p className="font-bold text-base sm:text-lg truncate mb-0.5 text-blue-800">{f.name}</p>
+                  <p className="text-xs sm:text-sm text-blue-600 line-clamp-2">{f.caption}</p>
                 </div>
               </a>
               {addRemoveButton}
