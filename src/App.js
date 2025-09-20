@@ -26,9 +26,9 @@ function App() {
   }
 
   return (
-    <div className="App text-center min-h-screen relative">
+    <div className="App text-center min-h-screen relative max-w-4xl mx-auto">
       <Navbar />
-      <main className="App-content max-w-5xl mt-20">
+      <main className="App-content mt-20">
         <Routes>
 
           {/* / root - game page, with favorites (stored locally or in db if authenticated). edit score buttons only for authenticated. includes edit score modal */}
