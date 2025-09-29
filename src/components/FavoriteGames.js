@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
 
 function FavoriteGames() {
   const navigate = useNavigate();
-  const { user, favorites } = useAuth();
+  const { user, favorites, isAuthenticated } = useAuth();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -17,37 +17,8 @@ function FavoriteGames() {
         });
         fg = fg || [];
         
-        // Only add scores and friends data if user is authenticated
-        if (user) {
-          fg.forEach( game => {
-            const myPlay = user.todayPlays?.[game.id];
-            game.scores = {
-              me: myPlay,
-              friends: {}
-            };
-            
-            // Add friends' scores
-            user.friends?.forEach(friend => {
-              const friendPlay = friend.todayPlays?.[game.id];
-              game.scores.friends[friend.id] = {
-                play: friendPlay,
-                friend: friend
-              };
-            });
-          });
-        } else {
-          // For unauthenticated users, just set empty scores
-          fg.forEach( game => {
-            game.scores = {
-              me: null,
-              friends: {}
-            };
-          });
-        }
-        
         setFavoriteGames(fg);
-        
-  },[games, user, favorites]);
+  },[games, favorites]);
 
   const onClickEditPlay = (e)=> {
     const id = e.currentTarget.dataset.id;
@@ -70,39 +41,20 @@ function FavoriteGames() {
       {favoriteGames.length > 0 && (
         <>
           {/* Favorites tab */}
-          <div className="flex justify-start items-start" style={{ margin: '0.3125rem', marginBottom: 0 }}>
+          <div className="flex justify-between items-start" style={{ margin: '0.3125rem', marginBottom: 0 }}>
             <div className="bg-blue-800 flex" style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}>
               <div className="bg-blue-100 text-blue-800 px-4 py-2 font-bold" style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}>
                 Favorites
               </div>
             </div>
+            <Link
+              to={isAuthenticated ? "/friends" : "/login"}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-medium rounded-t-lg transition-colors duration-300 text-sm"
+            >
+              {isAuthenticated ? "Friends" : "Log In"}
+            </Link>
           </div>
           
-          {/* Header row with user characters */}
-          <div className="flex justify-between items-center bg-white" style={{ margin: '0 0.3125rem 0.3125rem 0.3125rem', borderRadius: '0 0 0.3125rem 0.3125rem', padding: '0.75rem 0.5rem' }}>
-            <div className="flex items-center space-x-1 flex-shrink-0">
-              {/* Current user block */}
-              <div
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
-                style={{ backgroundColor: user?.color || '#4a90e2', color: 'white' }}
-                title={`You (${user?.username})`}
-              >
-                {user?.character || '👤'}
-              </div>
-              
-              {/* Friends blocks */}
-              {user?.friends?.map(friend => (
-                <div
-                  key={friend.id}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-sm font-bold border-2 border-white/30 shadow-md pulse-on-hover"
-                  style={{ backgroundColor: friend.color, color: 'white' }}
-                  title={friend.username}
-                >
-                  {friend.character}
-                </div>
-              ))}
-            </div>
-          </div>
         </>
       )}
       

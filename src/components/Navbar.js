@@ -32,7 +32,7 @@ function Navbar() {
         </div>
       </div>
       
-      <div className="max-w-4xl mx-auto relative">
+      <div className="max-w-4xl mx-auto">
         <img src='./img/glg_logo.png' alt="Good Little Games Logo" className='absolute top-2 left-2 h-16 z-10'/>
       </div>
     </nav>
