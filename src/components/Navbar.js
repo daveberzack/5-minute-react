@@ -10,9 +10,36 @@ function Navbar() {
   const socialLink = isLoggedIn ? "/social" : "/login";
   
   const tabs = [
-    { id: 'all', label: 'All Games', path: '/' },
-    { id: 'favorites', label: 'Favorites', path: '/favorites' },
-    { id: 'login', label: 'Login', path: '/login' }
+    {
+      id: 'all',
+      label: 'All Games',
+      path: '/',
+      icon: (
+        <svg className="w-4 h-4 mr-2 hidden min-[400px]:inline" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'favorites',
+      label: 'Favorites',
+      path: '/favorites',
+      icon: (
+        <svg className="w-4 h-4 mr-2 hidden min-[400px]:inline" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      )
+    },
+    {
+      id: 'login',
+      label: 'Login',
+      path: '/login',
+      icon: (
+        <svg className="w-4 h-4 mr-2 hidden min-[400px]:inline" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      )
+    }
   ];
 
   const isActiveTab = (path) => {
@@ -22,19 +49,19 @@ function Navbar() {
   };
 
   return (
-    <nav className="w-full z-50">
-      <div className="w-full bg-blue-800">
+    <nav className="w-full z-50 bg-blue-800">
+      <div className="w-full">
         <div className="max-w-4xl mx-auto h-14 flex items-center px-4 relative">
           <img src='./img/nicelight.png' alt="Nice Light Games" className='h-12 w-12 mr-3'/>
           <div>
-            <h1 className="text-white text-2xl font-bold leading-tight">Nice Light Games</h1>
-            <p className="text-blue-200 text-xs leading-tight">The Friendliest Place on the Internet</p>
+            <h1 className="text-white text-2xl font-bold">Nice Light Games</h1>
+            <p className="text-blue-200 text-xs">The Friendliest Place on the Internet</p>
           </div>
         </div>
       </div>
       
       {/* Tab navigation */}
-      <div className="w-full bg-blue-800">
+      <div className="w-full mt-1">
         <div className="max-w-4xl mx-auto flex justify-start items-end gap-1 px-4">
           {tabs.map((tab) => (
             <Link
@@ -47,7 +74,10 @@ function Navbar() {
               }`}
               style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}
             >
-              {tab.label}
+              <div className="flex items-center">
+                {tab.icon}
+                {tab.label}
+              </div>
             </Link>
           ))}
         </div>

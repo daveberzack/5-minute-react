@@ -37,7 +37,7 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
               <img
                 data-id={f.id}
                 onClick={isFavorite ? onClickUnfavorite : onClickFavorite}
-                className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center focus:outline-none flex-shrink-0"
+                className="mr-1 flex items-center justify-center focus:outline-none flex-shrink-0"
                 src={isFavorite ? "./img/star_full.png" : "./img/star_empty.png"} alt={isFavorite ? "Remove from favorites" : "Add to favorites"}
               />
           );

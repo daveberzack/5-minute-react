@@ -11,6 +11,10 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
   const [favoriteGames, setFavoriteGames] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const [favoriteOrder, setFavoriteOrder] = useState(() => {
+    const saved = localStorage.getItem('favoriteOrder');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isEditMode, setIsEditMode] = useState(false);
   
   // Add form state
@@ -74,11 +78,33 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
           });
         }
         
-        // Add custom links at the end
+        // Combine favorites and custom links
         const allFavorites = [...fg, ...customLinks];
-        setFavoriteGames(allFavorites);
         
-  },[games, user, favorites, customLinks]);
+        // Apply saved order if it exists
+        if (favoriteOrder.length > 0) {
+          const orderedFavorites = [];
+          const unorderedFavorites = [...allFavorites];
+          
+          // First, add items in the saved order
+          favoriteOrder.forEach(itemId => {
+            const itemIndex = unorderedFavorites.findIndex(item =>
+              (item.isCustom ? `custom-${item.id}` : `game-${item.id}`) === itemId
+            );
+            if (itemIndex !== -1) {
+              orderedFavorites.push(unorderedFavorites.splice(itemIndex, 1)[0]);
+            }
+          });
+          
+          // Then add any new items that weren't in the saved order
+          orderedFavorites.push(...unorderedFavorites);
+          
+          setFavoriteGames(orderedFavorites);
+        } else {
+          setFavoriteGames(allFavorites);
+        }
+        
+  },[games, user, favorites, customLinks, favoriteOrder]);
 
   const onClickEditPlay = (e)=> {
     const id = e.currentTarget.dataset.id;
@@ -163,6 +189,46 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
     };
   }, []);
 
+  // Move item up in the list
+  const handleMoveUp = (index) => {
+    if (index === 0) return; // Can't move first item up
+    
+    const newFavorites = [...favoriteGames];
+    const temp = newFavorites[index];
+    newFavorites[index] = newFavorites[index - 1];
+    newFavorites[index - 1] = temp;
+    
+    // Update the state
+    setFavoriteGames(newFavorites);
+    
+    // Save the new order to localStorage
+    const newOrder = newFavorites.map(item =>
+      item.isCustom ? `custom-${item.id}` : `game-${item.id}`
+    );
+    setFavoriteOrder(newOrder);
+    localStorage.setItem('favoriteOrder', JSON.stringify(newOrder));
+  };
+
+  // Move item down in the list
+  const handleMoveDown = (index) => {
+    if (index === favoriteGames.length - 1) return; // Can't move last item down
+    
+    const newFavorites = [...favoriteGames];
+    const temp = newFavorites[index];
+    newFavorites[index] = newFavorites[index + 1];
+    newFavorites[index + 1] = temp;
+    
+    // Update the state
+    setFavoriteGames(newFavorites);
+    
+    // Save the new order to localStorage
+    const newOrder = newFavorites.map(item =>
+      item.isCustom ? `custom-${item.id}` : `game-${item.id}`
+    );
+    setFavoriteOrder(newOrder);
+    localStorage.setItem('favoriteOrder', JSON.stringify(newOrder));
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* Set as Default button - only show if not currently default */}
@@ -177,21 +243,68 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
         </div>
       )}
       
-      <ul id="favorite-games-list" className="list-none p-0 w-full">
-        { favoriteGames?.map( (f, index) => {
-          // Check if this is a custom link
-          const isCustomLink = f.isCustom;
+      {favoriteGames && favoriteGames.length > 0 ? (
+        <ul id="favorite-games-list" className="list-none p-0 w-full">
+          { favoriteGames?.map( (f, index) => {
+            // Check if this is a custom link
+            const isCustomLink = f.isCustom;
 
-          // All items have consistent styling with full rounded corners
-          const marginStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
+            // All items have consistent styling with full rounded corners
+            const marginStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
 
-          return (
-            <li key={f.id} className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white" style={marginStyle}>
+            return (
+            <li
+              key={f.id}
+              className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white transition-all duration-200"
+              style={marginStyle}
+            >
+              {/* Up/Down buttons - only show in edit mode */}
+              {isEditMode && (
+                <div className="mr-2 flex flex-col gap-0.5">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleMoveUp(index);
+                    }}
+                    disabled={index === 0}
+                    className={`w-8 h-4 flex items-center justify-center rounded border-2 transition-colors duration-200 ${
+                      index === 0
+                        ? 'bg-gray-200 border-gray-400 text-gray-400 cursor-not-allowed'
+                        : 'bg-yellow-400 border-blue-800 text-blue-800 hover:bg-yellow-300'
+                    }`}
+                    title="Move up"
+                  >
+                    <svg className="w-12 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 16l9-9 9 9z"/>
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleMoveDown(index);
+                    }}
+                    disabled={index === favoriteGames.length - 1}
+                    className={`w-8 h-4 flex items-center justify-center rounded border-2 transition-colors duration-200 ${
+                      index === favoriteGames.length - 1
+                        ? 'bg-gray-200 border-gray-400 text-gray-400 cursor-not-allowed'
+                        : 'bg-yellow-400 border-blue-800 text-blue-800 hover:bg-yellow-300'
+                    }`}
+                    title="Move down"
+                  >
+                    <svg className="w-12 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 8l9 9 9-9z"/>
+                    </svg>
+                  </button>
+                </div>
+              )}
+              
               <a href={f.url} className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-3 transition-colors duration-300">
                 <div className="relative">
                   {isCustomLink ? (
                     <div
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300 flex items-center justify-center text-lg sm:text-xl"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300 flex items-center justify-center text-2xl sm:text-3xl"
                       style={{ backgroundColor: f.backgroundColor || '#4F46E5' }}
                     >
                       {f.emoji || '🎮'}
@@ -219,31 +332,49 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
                       handleRemoveFavorite(f.id);
                     }
                   }}
-                  className="w-8 h-8 flex items-center justify-center text-blue-800 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                  className="w-8 h-8 flex items-center justify-center bg-yellow-400 border-2 border-blue-800 text-blue-800 hover:bg-yellow-300 rounded-full transition-colors duration-200"
                   title={isCustomLink ? "Delete custom link" : "Remove from favorites"}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
               )}
             </li>
-          );
-        }) }
-      </ul>
+            );
+          }) }
+        </ul>
+      ) : (
+        <div className="text-center py-12 px-4">
+          <div className="bg-blue-50 rounded-lg p-8 border-2 border-dashed border-blue-200">
+            <svg className="w-16 h-16 mx-auto text-blue-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z" />
+            </svg>
+            <h3 className="text-xl font-bold text-blue-800 mb-2">No Favorites Yet</h3>
+            <p className="text-blue-600 mb-4">
+              Start building your favorites list by clicking the star icons on games in the All Games tab.
+            </p>
+            <p className="text-blue-500 text-sm">
+              You can also add custom links here once you have some favorites!
+            </p>
+          </div>
+        </div>
+      )}
       
-      {/* Edit Favorites Button */}
-      <div className="mt-4">
-        <button
-          onClick={() => setIsEditMode(!isEditMode)}
-          className="w-full bg-blue-800 text-white px-4 py-3 rounded-lg font-bold hover:bg-blue-900 transition-colors duration-200 flex items-center justify-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-          {isEditMode ? 'Done Editing' : 'Edit Favorites'}
-        </button>
-      </div>
+      {/* Edit Favorites Button - only show if there are favorites or custom links */}
+      {favoriteGames && favoriteGames.length > 0 && (
+        <div className="mt-4">
+          <button
+            onClick={() => setIsEditMode(!isEditMode)}
+            className="w-full bg-blue-800 text-white px-4 py-3 rounded-lg font-bold hover:bg-blue-900 transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            {isEditMode ? 'Done Editing' : 'Edit Favorites'}
+          </button>
+        </div>
+      )}
 
       {/* Add Custom Link Form - only show in edit mode */}
       {isEditMode && (
