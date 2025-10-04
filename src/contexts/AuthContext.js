@@ -56,11 +56,11 @@ export const AuthProvider = ({ children }) => {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (username, password) => {
         setIsLoading(true);
         setError(null);
         try {
-            const authenticatedUser = await authService.login(email, password);
+            const authenticatedUser = await authService.login(username, password);
             
             // Sync favorites between localStorage and server
             const syncResult = localStorageService.syncFavorites(
@@ -86,11 +86,11 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (email, password, username, character, color) => {
+    const register = async (username, password) => {
         setIsLoading(true);
         setError(null);
         try {
-            const authenticatedUser = await authService.register(email, password, username, character, color);
+            const authenticatedUser = await authService.register(username, password);
             
             // Sync favorites between localStorage and server (new users will have empty server favorites)
             const syncResult = localStorageService.syncFavorites(

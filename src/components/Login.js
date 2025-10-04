@@ -4,8 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
 
-    const [email, setEmail] = useState("d1@example.com");
-    const [password, setPassword] = useState("Pass1234");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
     const { login, isLoading } = useAuth();
@@ -14,7 +14,7 @@ function Login() {
     const signIn = async () => {
         try {
             setError("");
-            await login(email, password);
+            await login(username, password);
             navigate("/");
         } catch (err) {
             setError(err.message);
@@ -36,13 +36,13 @@ function Login() {
                 
                 <div className="space-y-4">
                     <div>
-                        <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <label htmlFor="login-username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                         <input
-                            id="login-email"
-                            type="email"
-                            placeholder="your@email.com"
-                            value={email}
-                            onChange={(e)=>{ setEmail(e.target.value) }}
+                            id="login-username"
+                            type="text"
+                            placeholder="Enter your username"
+                            value={username}
+                            onChange={(e)=>{ setUsername(e.target.value) }}
                             className="form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
                         />
                     </div>

@@ -79,13 +79,12 @@ function App() {
           <Route path="/" element={<AllGames defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/favorites" element={<FavoriteGames customLinks={customLinks} defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/add" element={<AddLink />} />
-          <Route path="/login" element={<LoginCompact />} />
+          <Route path="/login" element={<Login />} />
           
           {/* Keep existing routes for backward compatibility */}
           <Route path="/signup" element={<Signup />} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/edit-score/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
-          <Route path="/social" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
@@ -93,16 +92,3 @@ function App() {
 }
 
 export default App;
-
-
-/*
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/all" element={<AllGames />} />
-          
-          <Route path="/favorites" element={<ProtectedRoute><FavoriteGames /></ProtectedRoute>} />
-          <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
-          <Route path="/edit-score/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
-          
-          <Route path="/" element={isAuthenticated ? <Navigate to="/favorites" replace /> : <Navigate to="/all" replace />} />
-*/

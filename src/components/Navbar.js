@@ -30,7 +30,16 @@ function Navbar() {
         </svg>
       )
     },
-    {
+    ...(isLoggedIn ? [{
+      id: 'friends',
+      label: 'Friends',
+      path: '/friends',
+      icon: (
+        <svg className="w-4 h-4 mr-2 hidden min-[400px]:inline" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-4h3v4h2v-4h2l-3-4-3 4h2v4H4zm8.5-5c.83 0 1.5-.67 1.5-1.5S13.33 10 12.5 10s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm3-2c.83 0 1.5-.67 1.5-1.5S16.33 9 15.5 9s-1.5.67-1.5 1.5.67 1.5 1.5 1.5zm1 2c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm-2.5 3c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"/>
+        </svg>
+      )
+    }] : [{
       id: 'login',
       label: 'Login',
       path: '/login',
@@ -39,7 +48,7 @@ function Navbar() {
           <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
         </svg>
       )
-    }
+    }])
   ];
 
   const isActiveTab = (path) => {

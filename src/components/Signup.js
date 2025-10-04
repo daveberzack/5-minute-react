@@ -7,9 +7,9 @@ function Signup() {
     const { register } = useAuth();
     const navigate = useNavigate();
 
-    const submitForm = async (email, password, username, character, color) => {
+    const submitForm = async (username, password) => {
         try {
-            await register(email, password, username, character, color);
+            await register(username, password);
             navigate('/');
         } catch (error) {
             console.error('Signup failed:', error);
