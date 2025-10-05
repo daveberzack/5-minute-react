@@ -1,82 +1,259 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { games } from '../data/games';
 
 function Friends() {
-
-  const { user, addFriend, removeFriend } = useAuth();
-
+  const { user, addFriend, removeFriend, logout, favorites } = useAuth();
   const [newFriendName, setNewFriendName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentGamePage, setCurrentGamePage] = useState(0);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
 
-  const onClickRemove = (e)=> {
+  const onClickRemove = (e) => {
     const id = e.target.dataset.id;
     removeFriend(id);
   }
 
-  const onClickAdd = async (e)=> {
+  const onClickAdd = async (e) => {
     const added = await addFriend(newFriendName);
-    if (added){
+    if (added) {
       setNewFriendName("");
-    }
-    else {
+    } else {
       setErrorMessage("User not found");
     }
   }
 
+  const onClickLogout = async () => {
+    await logout();
+  }
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+    setErrorMessage(""); // Clear any error messages when toggling
+  }
+
+  // Handle window resize to recalculate columns
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+      setCurrentGamePage(0); // Reset to first page when screen size changes
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Get user's favorite games for table headers
+  const favoriteGames = favorites ?
+    favorites.map(gameId => games.find(game => game.id == gameId)).filter(Boolean) :
+    [];
+
+
+  // Calculate how many game columns can fit based on screen width
+  // Reserve space for padding/margins: ~40px
+  const tablePadding = 40;
+  const gameColumnWidth = 64; // Fixed width for game columns
+  const availableWidth = screenWidth - tablePadding;
+  const maxGameColumns = Math.max(1, Math.floor((availableWidth - 120) / gameColumnWidth)); // Reserve min 120px for username
+  
+  // Dynamic pagination based on screen width
+  const gamesPerPage = Math.min(maxGameColumns, favoriteGames.length);
+  const totalPages = Math.ceil(favoriteGames.length / gamesPerPage);
+  const startIndex = currentGamePage * gamesPerPage;
+  const endIndex = startIndex + gamesPerPage;
+  const currentPageGames = favoriteGames.slice(startIndex, endIndex);
+  
+  // Calculate flexible username column width (fills remaining space)
+  const gameColumnsWidth = currentPageGames.length * gameColumnWidth;
+  const usernameColumnWidth = availableWidth - gameColumnsWidth;
+
+  const goToNextPage = () => {
+    if (currentGamePage < totalPages - 1) {
+      setCurrentGamePage(currentGamePage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentGamePage > 0) {
+      setCurrentGamePage(currentGamePage - 1);
+    }
+  };
+
+  // Create table data: user first, then friends
+  const tableData = [
+    {
+      username: user?.username || '',
+      isCurrentUser: true,
+      id: null
+    },
+    ...(user?.friends || []).map(friend => ({
+      username: friend.username,
+      isCurrentUser: false,
+      id: friend.id
+    }))
+  ];
+
   return (
-    <section id="friends" className="max-w-4xl mx-auto p-2 sm:p-3 relative z-10">
-      <h2 className="text-2xl font-bold text-black text-left mb-3">Friends</h2>
-      
-      {/* Friends List */}
-      <ul id="friends-list" className="list-none p-0 space-y-1.5 mb-4">
-        { user?.friends?.map( f => {
-          console.log("?"+f.id,f)
-          return (
-            <li key={f.id} className="game-card text-gray-800 py-2 px-2.5 flex justify-between items-center group">
-              <div className="flex items-center flex-1 min-w-0">
-                <div style={{ backgroundColor: f.color }} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 text-lg sm:text-xl justify-center items-center font-bold flex flex-shrink-0 shadow-sm">{f.character}</div>
-                <span className="font-medium text-base sm:text-lg truncate">{f.username}</span>
-              </div>
+    <section id="friends" className="max-w-6xl mx-auto p-2 sm:p-3 relative z-10">
+      {/* Scores Table */}
+      {!isEditing && (
+        <div className="game-card p-4 mb-4">
+          <div className="overflow-x-auto">
+            <table className="border-collapse" style={{ width: '100%' }}>
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-2 pl-4" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
+                    {favoriteGames.length > gamesPerPage ? (
+                      <div className="flex items-center justify-start space-x-1">
+                        <button
+                          onClick={goToPrevPage}
+                          disabled={currentGamePage === 0}
+                          className={`w-7 h-7 rounded flex items-center justify-center text-sm ${
+                            currentGamePage === 0
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-500 text-white hover:bg-blue-600'
+                          }`}
+                        >
+                          ←
+                        </button>
+                        <span className="text-sm text-gray-600 min-w-[30px]">
+                          {currentGamePage + 1}/{totalPages}
+                        </span>
+                        <button
+                          onClick={goToNextPage}
+                          disabled={currentGamePage >= totalPages - 1}
+                          className={`w-7 h-7 rounded flex items-center justify-center text-sm ${
+                            currentGamePage >= totalPages - 1
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-500 text-white hover:bg-blue-600'
+                          }`}
+                        >
+                          →
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500 text-sm">Players</span>
+                    )}
+                  </th>
+                  {favoriteGames.length === 0 ? (
+                    <th className="text-center py-3 px-2 text-gray-500 italic">
+                      Add some favorite games to see them here
+                    </th>
+                  ) : (
+                    <>
+                      {currentPageGames.map(game => (
+                        <th key={game.id} className="text-center py-3 px-2" style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}>
+                          <img
+                            src={`/img/games/${game.image}`}
+                            alt={game.name}
+                            className="w-12 h-12 mx-auto rounded"
+                            title={game.name}
+                          />
+                        </th>
+                      ))}
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((player, index) => (
+                  <tr
+                    key={player.username}
+                    className={`border-b border-gray-100 ${
+                      player.isCurrentUser ? 'bg-blue-50' : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <td className="py-3 px-2 pl-4 font-medium text-gray-800 text-left" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
+                      {player.username}
+                    </td>
+                    {favoriteGames.length === 0 ? (
+                      <td className="text-center py-3 px-2 text-gray-400">
+                        -
+                      </td>
+                    ) : (
+                      <>
+                        {currentPageGames.map(game => (
+                          <td key={game.id} className="text-center py-3 px-2 text-gray-600" style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}>
+                            X
+                          </td>
+                        ))}
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Mode - Friends List */}
+      {isEditing && (
+        <>
+          <ul id="friends-list" className="list-none p-0 space-y-1.5 mb-4">
+            {user?.friends?.map(f => (
+              <li key={f.id} className="game-card text-gray-800 py-2 px-2.5 flex justify-between items-center group">
+                <div className="flex items-center flex-1 min-w-0">
+                  <span className="font-medium text-base sm:text-lg truncate">{f.username}</span>
+                </div>
+                <button
+                  data-id={f.id}
+                  onClick={onClickRemove}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none fill-current"
+                  >
+                    <path d="M19,13H5V11H19V13Z" />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Add Friend Form */}
+          <div className="game-card p-3 mb-4">
+            <div className="flex items-center space-x-2">
+              <input
+                id="new-friend-name"
+                placeholder="Enter username to follow"
+                value={newFriendName}
+                onChange={(e) => { setNewFriendName(e.target.value); setErrorMessage("") }}
+                className="form-input flex-grow px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
+              />
               <button
-                data-id={f.id}
-                onClick={onClickRemove}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
+                onClick={onClickAdd}
+                className="btn-gradient w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md flex-shrink-0"
               >
                 <svg
                   viewBox="0 0 24 24"
-                  className="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none fill-current"
+                  className="w-5 h-5 pointer-events-none fill-current text-white"
                 >
-                  <path d="M19,13H5V11H19V13Z" />
+                  <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
                 </svg>
               </button>
-            </li>
-          );
-        }) }
-      </ul>
+            </div>
+            {errorMessage && <p className="text-red-600 text-sm mt-2">{errorMessage}</p>}
+          </div>
+        </>
+      )}
 
-      {/* Add Friend Form */}
-      <div className="game-card p-3">
-        <div className="flex items-center space-x-2">
-          <input
-            id="new-friend-name"
-            placeholder="Enter username to add"
-            value={newFriendName}
-            onChange={(e)=>{ setNewFriendName(e.target.value); setErrorMessage("") }}
-            className="form-input flex-grow px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
-          />
-          <button
-            onClick={onClickAdd}
-            className="btn-gradient w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-105 shadow-md flex-shrink-0"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-5 h-5 pointer-events-none fill-current text-white"
-            >
-              <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-            </svg>
-          </button>
-        </div>
-        {errorMessage && <p className="text-red-600 text-sm mt-2">{errorMessage}</p>}
+      {/* Control Buttons */}
+      <div className="flex items-center justify-center space-x-4">
+        <button
+          onClick={toggleEditMode}
+          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors duration-200 shadow-sm"
+        >
+          {isEditing ? 'Done Editing' : 'Edit Friends List'}
+        </button>
+        <button
+          onClick={onClickLogout}
+          className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded-lg transition-colors duration-200 shadow-sm"
+        >
+          Log Out
+        </button>
       </div>
     </section>
   );

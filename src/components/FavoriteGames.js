@@ -3,12 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
 import EmojiPicker from 'emoji-picker-react';
+import { initializeDailyTracking, hasGameBeenPlayedToday, handleGameLinkClick } from '../services/gameActivityService';
 
 function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab = () => {} }) {
   const navigate = useNavigate();
   const { user, favorites, addFavorite, removeFavorite } = useAuth();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
+  const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [favoriteOrder, setFavoriteOrder] = useState(() => {
@@ -43,6 +45,12 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
     '#990099', '#009999', '#CC0000', '#00CC00', '#0000CC', '#CCCC00',
     '#CC00CC', '#00CCCC'
   ];
+
+  // Initialize daily tracking on component mount
+  useEffect(() => {
+    const playedToday = initializeDailyTracking();
+    setGamesPlayedToday(playedToday);
+  }, []);
 
   useEffect(()=>{
         let fg = favorites.map( favoriteId => {
@@ -229,6 +237,18 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
     localStorage.setItem('favoriteOrder', JSON.stringify(newOrder));
   };
 
+  // Handle game link clicks
+  const onGameLinkClick = (gameId, gameUrl, event) => {
+    handleGameLinkClick(gameId, gameUrl, event);
+    // Update local state to reflect the change immediately
+    setGamesPlayedToday(prev => {
+      if (!prev.includes(gameId)) {
+        return [...prev, gameId];
+      }
+      return prev;
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* Set as Default button - only show if not currently default */}
@@ -250,13 +270,14 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
             const isCustomLink = f.isCustom;
 
             // All items have consistent styling with full rounded corners
-            const marginStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
+          let itemStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
+          if (hasGameBeenPlayedToday(f.id)) itemStyle.backgroundColor = "#FFFFFF99"
 
             return (
             <li
               key={f.id}
-              className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white transition-all duration-200"
-              style={marginStyle}
+              className={`text-blue-800 py-1.5 px-2 flex justify-between items-center group relative transition-all duration-200 bg-white`}
+              style={itemStyle}
             >
               {/* Up/Down buttons - only show in edit mode */}
               {isEditMode && (
@@ -300,7 +321,16 @@ function FavoriteGames({ customLinks = [], defaultTab = 'all', updateDefaultTab 
                 </div>
               )}
               
-              <a href={f.url} className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-3 transition-colors duration-300">
+              <a
+                href={f.url}
+                className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-3 transition-colors duration-300"
+                onClick={(e) => {
+                  // Only track non-custom links (actual games)
+                  if (!f.isCustom) {
+                    onGameLinkClick(f.id, f.url, e);
+                  }
+                }}
+              >
                 <div className="relative">
                   {isCustomLink ? (
                     <div

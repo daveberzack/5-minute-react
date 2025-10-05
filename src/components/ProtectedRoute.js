@@ -12,5 +12,5 @@ export const ProtectedRoute = ({ children }) => {
         );
     }
     
-    return isAuthenticated ? children : <Navigate to="/all" replace />;
+    return isAuthenticated ? children : <Navigate to="/" replace />;
 };

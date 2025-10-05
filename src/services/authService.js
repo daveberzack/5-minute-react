@@ -2,27 +2,27 @@ import { apiClient } from './apiClient';
 import { tokenManager } from './tokenManager';
 
 export const authService = {
-    async login(email, password) {
-        const response = await apiClient.post('/auth/login', { email, password });
-        tokenManager.setTokens(response.data.token, response.data.refreshToken);
+    async login(username, password) {
+        const response = await apiClient.post('/auth/login/', { username, password });
+        tokenManager.setTokens(response.token, null); // Django backend doesn't provide refresh token yet
         
-        // Always fetch complete user data after login
-        return await this.getCurrentUser();
+        // Return user data directly from login response
+        return response.user;
     },
 
-    async register(email, password, username, character, color) {
-        const response = await apiClient.post('/auth/register', {
-            email, password, username, character, color
+    async register(username, password) {
+        const response = await apiClient.post('/auth/register/', {
+            username, password
         });
-        tokenManager.setTokens(response.data.token, response.data.refreshToken);
-        return await this.getCurrentUser();
+        tokenManager.setTokens(response.token, null); // Django backend doesn't provide refresh token yet
+        return response.user;
     },
 
     async logout() {
         try {
             const refreshToken = tokenManager.getRefreshToken();
             if (refreshToken) {
-                await apiClient.post('/auth/logout', { refreshToken });
+                await apiClient.post('/auth/logout/', { refreshToken });
             }
         } finally {
             tokenManager.clearTokens();
@@ -42,8 +42,8 @@ export const authService = {
     },
 
     async getCurrentUser() {
-        const response = await apiClient.get('/users/profile');
-        console.log("getCurrentUser", response.data);
-        return response.data;
+        const response = await apiClient.get('/auth/profile/');
+        console.log("getCurrentUser", response);
+        return response;
     }
 };

@@ -10,7 +10,7 @@ class ApiClient {
         const config = {
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { Authorization: `Bearer ${token}` }),
+                ...(token && { Authorization: `Token ${token}` }),
                 ...options.headers,
             },
             ...options,
@@ -19,11 +19,8 @@ class ApiClient {
         const response = await fetch(url, config);
         
         if (response.status === 401) {
-            const refreshed = await this.refreshToken();
-            if (refreshed) {
-                config.headers.Authorization = `Bearer ${tokenManager.getToken()}`;
-                return this.handleResponse(await fetch(url, config));
-            }
+            // TODO: Implement refresh token functionality when backend supports it
+            tokenManager.clearTokens();
             throw new Error('Authentication failed');
         }
 
@@ -39,26 +36,7 @@ class ApiClient {
     }
 
     async refreshToken() {
-        const refreshToken = tokenManager.getRefreshToken();
-        if (!refreshToken) return false;
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                tokenManager.setTokens(data.data.token, data.data.refreshToken);
-                return true;
-            }
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-        }
-
-        tokenManager.clearTokens();
+        // TODO: Implement refresh token functionality when backend supports it
         return false;
     }
 

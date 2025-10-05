@@ -1,9 +1,18 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
+import { initializeDailyTracking, hasGameBeenPlayedToday, handleGameLinkClick } from '../services/gameActivityService';
 
 function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
 
   const { user, favorites, addFavorite, removeFavorite } = useAuth();
+  const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
+
+  // Initialize daily tracking on component mount
+  useEffect(() => {
+    const playedToday = initializeDailyTracking();
+    setGamesPlayedToday(playedToday);
+  }, []);
 
   const onClickFavorite = (e)=> {
     const id = parseInt(e.target.dataset.id);
@@ -13,6 +22,18 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
     const id = parseInt(e.target.dataset.id);
     removeFavorite(id);
   }
+
+  // Handle game link clicks
+  const onGameLinkClick = (gameId, gameUrl, event) => {
+    handleGameLinkClick(gameId, gameUrl, event);
+    // Update local state to reflect the change immediately
+    setGamesPlayedToday(prev => {
+      if (!prev.includes(gameId)) {
+        return [...prev, gameId];
+      }
+      return prev;
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -43,11 +64,16 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
           );
           
           // First item connects to tab, others have normal margins
-          const marginStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
+          let itemStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
+          if (hasGameBeenPlayedToday(f.id)) itemStyle.backgroundColor = "#FFFFFF99"
           
           return (
-            <li key={f.id} className="text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white" style={marginStyle}>
-              <a href={f.url} className="block flex flex-1 min-w-0">
+            <li key={f.id} className={`text-blue-800 py-1.5 px-2 flex justify-between items-center group relative bg-white`} style={itemStyle}>
+              <a
+                href={f.url}
+                className="block flex flex-1 min-w-0"
+                onClick={(e) => onGameLinkClick(f.id, f.url, e)}
+              >
                 <img
                     src={"./img/games/"+f.image}
                     className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300"
