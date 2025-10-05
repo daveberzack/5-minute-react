@@ -1,15 +1,27 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import UserForm from './UserForm';
 
 function Signup() {
-    
     const { register } = useAuth();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState('');
+    
+    // Form state 
+    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const submitForm = async (username, password) => {
+    // Form validation 
+    const isPasswordValid = password.length >= 8 || password.length === 0;
+    const isFormValid = username.length > 0 && password.length >= 8;
+
+    const submitForm = async () => {
+        if (password.length < 8) {
+            return; // Let the visual feedback handle this
+        }
+        
+        setIsSubmitting(true);
         try {
             setErrorMessage(''); // Clear any previous errors
             await register(username, password);
@@ -35,6 +47,8 @@ function Signup() {
             } else {
                 setErrorMessage('Registration failed. Please try again.');
             }
+        } finally {
+            setIsSubmitting(false);
         }
     }
     
@@ -42,19 +56,61 @@ function Signup() {
         <div className="min-h-screen flex items-center justify-center p-3 relative z-10">
             <section id="signup" className="glass-card max-w-md w-full p-4 sm:p-6 shadow-xl">
                 <div className="text-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M15 12C17.21 12 19 10.21 19 8S17.21 4 15 4 11 5.79 11 8 12.79 12 15 12M6 10V7H4V10H1V12H4V15H6V12H9V10H6M15 14C12.33 14 7 15.34 7 18V20H23V18C23 15.34 17.67 14 15 14Z"/>
-                        </svg>
-                    </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-gradient mb-1">Join the Fun</h3>
                     <p className="text-gray-600 text-sm">Create your account and start gaming</p>
                 </div>
                 
-                <UserForm
-                    submitForm={submitForm}
-                    errorMessage={errorMessage}
-                />
+                {/* Consolidated form (previously UserForm component) */}
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input
+                            id="signup-username"
+                            placeholder="Choose a username"
+                            value={username}
+                            onChange={(e) => { setUsername(e.target.value) }}
+                            className="form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input
+                            type="password"
+                            id="signup-password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => { setPassword(e.target.value) }}
+                            className={`form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300 ${
+                                !isPasswordValid ? 'border-red-300 focus:border-red-500' : ''
+                            }`}
+                        />
+                        {!isPasswordValid && (
+                            <p className="text-red-600 text-xs mt-1">Password must be at least 8 characters long</p>
+                        )}
+                        {password.length === 0 && (
+                            <p className="text-gray-500 text-xs mt-1">Minimum 8 characters required</p>
+                        )}
+                    </div>
+                    
+                    {errorMessage && (
+                        <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+                            {errorMessage}
+                        </div>
+                    )}
+                    
+                    <button
+                        onClick={submitForm}
+                        disabled={!isFormValid || isSubmitting}
+                        className={`w-full py-2.5 px-4 text-sm rounded-lg font-medium shadow-md mt-4 transition-all duration-300 ${
+                            isFormValid && !isSubmitting
+                                ? 'btn-gradient hover:scale-105'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                    >
+                        {isSubmitting ? 'Creating Account...' : 'Create Account'}
+                    </button>
+                </div>
                 
                 <div className="text-center pt-3 border-t border-gray-200 mt-4">
                     <p className="text-sm text-gray-600">

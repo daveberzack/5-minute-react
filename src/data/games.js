@@ -1,5 +1,4 @@
 export const games = [
-  /////////////// NYT Games ///////////////////////
 
   {
     id: "0",

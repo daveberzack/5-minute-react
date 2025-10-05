@@ -5,8 +5,8 @@ import { initializeDailyTracking, hasGameBeenPlayedToday, handleGameLinkClick } 
 
 function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
 
-  const { user, favorites, addFavorite, removeFavorite } = useAuth();
-  const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
+  const { favorites, addFavorite, removeFavorite } = useAuth();
+  const [setGamesPlayedToday] = useState([]);
 
   // Initialize daily tracking on component mount
   useEffect(() => {
@@ -49,7 +49,6 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
         </div>
       )}
       
-      <section id="other-games">
         <ul id="other-games-list" className="list-none p-0 w-full">
         { games?.map( (f, index) => {
           const isFavorite = favorites.includes(f.id*1);
@@ -89,7 +88,6 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
           );
         })}
       </ul>
-      </section>
     </div>
   );
 

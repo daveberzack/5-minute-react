@@ -1,7 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import AllGames from './components/AllGames';
-import FavoriteGames from './components/FavoriteGames';
-import AddLink from './components/AddLink';
+import FavoriteGamesList from './components/FavoriteGamesList';
 import Login from './components/Login';
 import './App.css';
 import EditScoreForm from './components/EditScoreForm';
@@ -30,30 +29,29 @@ function App() {
   });
 
   // Listen for localStorage changes to update custom links
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const saved = localStorage.getItem('customLinks');
-      setCustomLinks(saved ? JSON.parse(saved) : []);
-    };
+  // useEffect(() => {
+  //   const handleStorageChange = () => {
+  //     const saved = localStorage.getItem('customLinks');
+  //     setCustomLinks(saved ? JSON.parse(saved) : []);
+  //   };
 
-    window.addEventListener('storage', handleStorageChange);
+  //   window.addEventListener('storage', handleStorageChange);
     
-    // Also listen for custom event for same-tab updates
-    window.addEventListener('customLinksUpdated', handleStorageChange);
+  //   // Also listen for custom event for same-tab updates
+  //   window.addEventListener('customLinksUpdated', handleStorageChange);
     
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('customLinksUpdated', handleStorageChange);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('storage', handleStorageChange);
+  //     window.removeEventListener('customLinksUpdated', handleStorageChange);
+  //   };
+  // }, []);
 
-  // Handle default tab navigation on initial load only
+  // Handle default tab navigation on initial load
   useEffect(() => {
-    // Only run this effect once on initial load when coming from root path
     if (defaultTab === 'favorites' && location.pathname === '/' && !isLoading) {
       navigate('/favorites', { replace: true });
     }
-  }, [isLoading]); // Only depend on isLoading, not on location changes
+  }, [isLoading]);
 
   // Check for recent game visits and auto-redirect to score entry
   useEffect(() => {
@@ -106,8 +104,7 @@ function App() {
       <main className="App-content">
         <Routes>
           <Route path="/" element={<AllGames defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
-          <Route path="/favorites" element={<FavoriteGames customLinks={customLinks} defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
-          <Route path="/add" element={<AddLink />} />
+          <Route path="/favorites" element={<FavoriteGamesList customLinks={customLinks} defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/login" element={<Login />} />
           
           {/* Keep existing routes for backward compatibility */}

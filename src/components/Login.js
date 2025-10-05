@@ -25,11 +25,6 @@ function Login() {
         <div className="min-h-screen flex items-center justify-center p-3 relative z-10">
             <section id="login" className="glass-card max-w-md w-full p-4 sm:p-6 shadow-xl">
                 <div className="text-center mb-6">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
-                        <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H19V9Z"/>
-                        </svg>
-                    </div>
                     <h3 className="text-xl sm:text-2xl font-bold text-gradient mb-1">Welcome Back</h3>
                     <p className="text-gray-600 text-sm">Sign in to track your game scores</p>
                 </div>
