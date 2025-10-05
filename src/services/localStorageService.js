@@ -111,7 +111,7 @@ export const localStorageService = {
         // Ensure gameId is a number
         const numericGameId = typeof gameId === 'string' ? parseInt(gameId, 10) : gameId;
         if (isNaN(numericGameId)) {
-            return false;
+            throw new Error(`Invalid gameId: ${gameId} must be a valid number`);
         }
         
         const { favorites } = this.getFavorites();

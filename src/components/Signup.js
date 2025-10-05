@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import UserForm from './UserForm';
@@ -6,13 +7,34 @@ function Signup() {
     
     const { register } = useAuth();
     const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState('');
 
     const submitForm = async (username, password) => {
         try {
+            setErrorMessage(''); // Clear any previous errors
             await register(username, password);
             navigate('/');
         } catch (error) {
             console.error('Signup failed:', error);
+            
+            // Handle different types of errors
+            if (error.message && error.message.includes('400')) {
+                // Try to extract validation errors from the response
+                if (error.details) {
+                    const errorDetails = error.details;
+                    if (errorDetails.password) {
+                        setErrorMessage(errorDetails.password[0]);
+                    } else if (errorDetails.username) {
+                        setErrorMessage(errorDetails.username[0]);
+                    } else {
+                        setErrorMessage('Registration failed. Please check your information.');
+                    }
+                } else {
+                    setErrorMessage('Registration failed. Please ensure your password is at least 8 characters long.');
+                }
+            } else {
+                setErrorMessage('Registration failed. Please try again.');
+            }
         }
     }
     
@@ -31,6 +53,7 @@ function Signup() {
                 
                 <UserForm
                     submitForm={submitForm}
+                    errorMessage={errorMessage}
                 />
                 
                 <div className="text-center pt-3 border-t border-gray-200 mt-4">

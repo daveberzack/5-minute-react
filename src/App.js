@@ -1,8 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AllGames from './components/AllGames';
 import FavoriteGames from './components/FavoriteGames';
 import AddLink from './components/AddLink';
-import LoginCompact from './components/LoginCompact';
 import Login from './components/Login';
 import './App.css';
 import EditScoreForm from './components/EditScoreForm';
@@ -13,6 +12,8 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { checkForRecentGameVisit } from './services/gameActivityService';
+import { hasScoreForToday } from './services/gameService';
 
 function App() {
   const navigate = useNavigate();
@@ -54,6 +55,34 @@ function App() {
     }
   }, [isLoading]); // Only depend on isLoading, not on location changes
 
+  // Check for recent game visits and auto-redirect to score entry
+  useEffect(() => {
+    const checkAutoRedirect = async () => {
+      // Only check if user is authenticated and not already on edit score page
+      if (!isAuthenticated || isLoading || location.pathname.includes('/edit-score')) {
+        return;
+      }
+
+      try {
+        const recentVisit = checkForRecentGameVisit();
+        if (recentVisit) {
+          // Check if user already has a score for this game today
+          const hasScore = await hasScoreForToday(recentVisit.gameId);
+          if (!hasScore) {
+            // Redirect to score entry form
+            navigate(`/edit-score/${recentVisit.gameId}`, {
+              state: { from: location.pathname }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for auto-redirect:', error);
+      }
+    };
+
+    checkAutoRedirect();
+  }, [isAuthenticated, isLoading, location.pathname, navigate]);
+
   const updateDefaultTab = (tab) => {
     setDefaultTab(tab);
     localStorage.setItem('defaultTab', tab);
@@ -85,6 +114,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/edit-score/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
+          <Route path="/editscore/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>

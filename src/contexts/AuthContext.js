@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
-import { userService } from '../services/userService';
+import { gameService } from '../services/gameService';
 import { localStorageService } from '../services/localStorageService';
 
 const AuthContext = createContext();
@@ -11,6 +11,38 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [localFavorites, setLocalFavorites] = useState([]);
 
+    // Centralized function to sync favorites and update state
+    const syncFavoritesAndUpdateState = (authenticatedUser) => {
+        if (!authenticatedUser) {
+            // No authenticated user, use localStorage favorites only
+            const { favorites } = localStorageService.getFavorites();
+            setLocalFavorites(favorites);
+            setUser(null);
+            return null;
+        }
+
+        // Sync favorites between localStorage and server
+        const syncResult = localStorageService.syncFavorites(
+            authenticatedUser.favorites,
+            authenticatedUser.favoritesLastModified
+        );
+        
+        // Update user object with synced favorites
+        const updatedUser = {
+            ...authenticatedUser,
+            favorites: syncResult.favorites
+        };
+        
+        // If local was newer, update server (TODO: implement bulk update API)
+        if (syncResult.source === 'local' && syncResult.favorites.length !== authenticatedUser.favorites?.length) {
+            console.log('Local favorites are newer, should sync to server:', syncResult.favorites);
+        }
+        
+        setUser(updatedUser);
+        setLocalFavorites(syncResult.favorites);
+        return updatedUser;
+    };
+
     useEffect(() => {
         // Always load favorites from localStorage first for immediate UI
         const { favorites } = localStorageService.getFavorites();
@@ -18,41 +50,8 @@ export const AuthProvider = ({ children }) => {
 
         // Then check for authenticated user and sync
         authService.checkAutoLogin()
-            .then(async (authenticatedUser) => {
-                if (authenticatedUser) {
-                    // Sync favorites between localStorage and server
-                    const syncResult = localStorageService.syncFavorites(
-                        authenticatedUser.favorites,
-                        authenticatedUser.favoritesLastModified
-                    );
-                    
-                    // Update user object with synced favorites
-                    const updatedUser = {
-                        ...authenticatedUser,
-                        favorites: syncResult.favorites
-                    };
-                    
-                    // If local was newer, update server
-                    if (syncResult.source === 'local' && syncResult.favorites.length !== authenticatedUser.favorites?.length) {
-                        try {
-                            // TODO: We'll need to add a bulk update API endpoint
-                            console.log('Local favorites are newer, should sync to server:', syncResult.favorites);
-                        } catch (error) {
-                            console.error('Failed to sync local favorites to server:', error);
-                        }
-                    }
-                    
-                    setUser(updatedUser);
-                    setLocalFavorites(syncResult.favorites);
-                } else {
-                    // No authenticated user, use localStorage favorites only
-                    setUser(null);
-                }
-            })
-            .catch(() => {
-                setUser(null);
-                // Keep localStorage favorites even if auth fails
-            })
+            .then(syncFavoritesAndUpdateState)
+            .catch(() => syncFavoritesAndUpdateState(null))
             .finally(() => setIsLoading(false));
     }, []);
 
@@ -61,22 +60,7 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         try {
             const authenticatedUser = await authService.login(username, password);
-            
-            // Sync favorites between localStorage and server
-            const syncResult = localStorageService.syncFavorites(
-                authenticatedUser.favorites,
-                authenticatedUser.favoritesLastModified
-            );
-            
-            // Update user object with synced favorites
-            const updatedUser = {
-                ...authenticatedUser,
-                favorites: syncResult.favorites
-            };
-            
-            setUser(updatedUser);
-            setLocalFavorites(syncResult.favorites);
-            
+            const updatedUser = syncFavoritesAndUpdateState(authenticatedUser);
             return updatedUser;
         } catch (err) {
             setError(err.message);
@@ -91,22 +75,7 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         try {
             const authenticatedUser = await authService.register(username, password);
-            
-            // Sync favorites between localStorage and server (new users will have empty server favorites)
-            const syncResult = localStorageService.syncFavorites(
-                authenticatedUser.favorites || [],
-                authenticatedUser.favoritesLastModified
-            );
-            
-            // Update user object with synced favorites
-            const updatedUser = {
-                ...authenticatedUser,
-                favorites: syncResult.favorites
-            };
-            
-            setUser(updatedUser);
-            setLocalFavorites(syncResult.favorites);
-            
+            const updatedUser = syncFavoritesAndUpdateState(authenticatedUser);
             return updatedUser;
         } catch (err) {
             setError(err.message);
@@ -118,97 +87,83 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         await authService.logout();
-        setUser(null);
-        // Keep localStorage favorites when logging out
-        // This allows users to maintain their favorites across login sessions
-        const { favorites } = localStorageService.getFavorites();
-        setLocalFavorites(favorites);
+        syncFavoritesAndUpdateState(null); // This will set user to null and update favorites from localStorage
     };
 
     // User data management functions
     const addFriend = async (username) => {
         try {
-            const updatedUser = await userService.addFriend(username);
+            const updatedUser = await gameService.addFriend(username);
             setUser(updatedUser);
-            return true;
+            return updatedUser;
         } catch (error) {
             console.error("Error adding friend:", error);
-            return false;
+            throw new Error(`Failed to add friend ${username}: ${error.message}`);
         }
     };
 
     const removeFriend = async (friendId) => {
         try {
-            const updatedUser = await userService.removeFriend(friendId);
+            const updatedUser = await gameService.removeFriend(friendId);
             setUser(updatedUser);
         } catch (error) {
             console.error("Error removing friend:", error);
         }
     };
 
+    // Simplified favorites management with consistent error handling
+    const updateFavoriteState = () => {
+        const { favorites } = localStorageService.getFavorites();
+        setLocalFavorites(favorites);
+    };
+
     const addFavorite = async (gameId) => {
         try {
             // Always update localStorage first (optimistic update)
-            const timestamp = localStorageService.addFavorite(gameId);
-            const { favorites } = localStorageService.getFavorites();
-            setLocalFavorites(favorites);
+            localStorageService.addFavorite(gameId);
+            updateFavoriteState();
 
             // If user is authenticated, also update server
             if (user) {
                 try {
-                    const updatedUser = await userService.addFavorite(gameId);
+                    const updatedUser = await gameService.addFavorite(gameId);
                     setUser(updatedUser);
                 } catch (error) {
                     console.error("Error syncing favorite to server:", error);
                     // Keep localStorage change even if server fails
-                    // TODO: Could implement a retry queue here for offline scenarios
                 }
             }
         } catch (error) {
             console.error("Error adding favorite:", error);
-            // If localStorage fails, try to revert the UI state
-            try {
-                const { favorites } = localStorageService.getFavorites();
-                setLocalFavorites(favorites);
-            } catch (revertError) {
-                console.error("Failed to revert favorites state:", revertError);
-            }
+            updateFavoriteState(); // Revert to current localStorage state
         }
     };
 
     const removeFavorite = async (gameId) => {
         try {
             // Always update localStorage first (optimistic update)
-            const timestamp = localStorageService.removeFavorite(gameId);
-            const { favorites } = localStorageService.getFavorites();
-            setLocalFavorites(favorites);
+            localStorageService.removeFavorite(gameId);
+            updateFavoriteState();
 
             // If user is authenticated, also update server
             if (user) {
                 try {
-                    const updatedUser = await userService.removeFavorite(gameId);
+                    const updatedUser = await gameService.removeFavorite(gameId);
                     setUser(updatedUser);
                 } catch (error) {
                     console.error("Error syncing favorite removal to server:", error);
                     // Keep localStorage change even if server fails
-                    // TODO: Could implement a retry queue here for offline scenarios
                 }
             }
         } catch (error) {
             console.error("Error removing favorite:", error);
-            // If localStorage fails, try to revert the UI state
-            try {
-                const { favorites } = localStorageService.getFavorites();
-                setLocalFavorites(favorites);
-            } catch (revertError) {
-                console.error("Failed to revert favorites state:", revertError);
-            }
+            updateFavoriteState(); // Revert to current localStorage state
         }
     };
 
     const updatePlay = async (gameId, score, message) => {
         try {
-            const updatedUser = await userService.updatePlay(gameId, score, message);
+            const updatedUser = await gameService.updatePlay(gameId, score, message);
             setUser(updatedUser);
         } catch (error) {
             console.error("Error updating play:", error);

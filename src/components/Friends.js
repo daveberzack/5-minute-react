@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
+import { getUserGamePlays } from '../services/gameService';
+import { useNavigate } from 'react-router-dom';
 
 function Friends() {
   const { user, addFriend, removeFriend, logout, favorites } = useAuth();
+  const navigate = useNavigate();
   const [newFriendName, setNewFriendName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentGamePage, setCurrentGamePage] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [userGamePlays, setUserGamePlays] = useState([]);
 
   const onClickRemove = (e) => {
     const id = e.target.dataset.id;
@@ -33,6 +37,22 @@ function Friends() {
     setErrorMessage(""); // Clear any error messages when toggling
   }
 
+  // Load game plays data when user changes
+  useEffect(() => {
+    const loadGamePlays = async () => {
+      if (!user) return;
+      
+      try {
+        const plays = await getUserGamePlays();
+        setUserGamePlays(plays);
+      } catch (error) {
+        console.error('Error loading game plays:', error);
+      }
+    };
+
+    loadGamePlays();
+  }, [user]);
+
   // Handle window resize to recalculate columns
   useEffect(() => {
     const handleResize = () => {
@@ -46,7 +66,7 @@ function Friends() {
 
   // Get user's favorite games for table headers
   const favoriteGames = favorites ?
-    favorites.map(gameId => games.find(game => game.id == gameId)).filter(Boolean) :
+    favorites.map(gameId => games.find(game => game.id === gameId)).filter(Boolean) :
     [];
 
 
@@ -77,6 +97,42 @@ function Friends() {
   const goToPrevPage = () => {
     if (currentGamePage > 0) {
       setCurrentGamePage(currentGamePage - 1);
+    }
+  };
+
+  // Helper function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0];
+  };
+
+  // Helper function to get score for a specific user and game today
+  const getScoreForUserGame = (userId, gameId, isCurrentUser = false) => {
+    if (isCurrentUser) {
+      // For current user, use the loaded game plays
+      // Check if userGamePlays is defined and is an array before calling find
+      if (!userGamePlays || !Array.isArray(userGamePlays)) {
+        return null;
+      }
+      
+      const today = getTodayDate();
+      const play = userGamePlays.find(play =>
+        play.game_id === gameId.toString() && play.play_date === today
+      );
+      return play ? { score: play.score, message: play.message } : null;
+    } else {
+      // For friends, we'll need to implement this when we have friends' data
+      // For now, return null (will show pencil icon)
+      return null;
+    }
+  };
+
+  // Helper function to handle score cell click
+  const handleScoreCellClick = (gameId, isCurrentUser) => {
+    if (isCurrentUser) {
+      // Navigate to edit score form
+      navigate(`/edit-score/${gameId}`, {
+        state: { from: '/friends' }
+      });
     }
   };
 
@@ -173,11 +229,41 @@ function Friends() {
                       </td>
                     ) : (
                       <>
-                        {currentPageGames.map(game => (
-                          <td key={game.id} className="text-center py-3 px-2 text-gray-600" style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}>
-                            X
-                          </td>
-                        ))}
+                        {currentPageGames.map(game => {
+                          const scoreData = getScoreForUserGame(player.id, game.id, player.isCurrentUser);
+                          const hasScore = scoreData && scoreData.score;
+                          const hasMessage = scoreData && scoreData.message;
+                          
+                          return (
+                            <td
+                              key={game.id}
+                              className={`text-center py-3 px-2 ${player.isCurrentUser ? 'cursor-pointer hover:bg-blue-100' : ''}`}
+                              style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}
+                              onClick={() => player.isCurrentUser && handleScoreCellClick(game.id, player.isCurrentUser)}
+                            >
+                              {hasScore ? (
+                                <div className="relative inline-block">
+                                  <span className="text-gray-800 font-medium text-sm">
+                                    {scoreData.score}
+                                  </span>
+                                  {hasMessage && (
+                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                      <span className="text-white text-xs">💬</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : player.isCurrentUser ? (
+                                <div className="text-gray-400 hover:text-blue-600 transition-colors">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mx-auto">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                  </svg>
+                                </div>
+                              ) : (
+                                <span className="text-gray-300">-</span>
+                              )}
+                            </td>
+                          );
+                        })}
                       </>
                     )}
                   </tr>

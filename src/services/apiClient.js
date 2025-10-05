@@ -30,14 +30,18 @@ class ApiClient {
     async handleResponse(response) {
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+            // Include the detailed error data for validation errors
+            error.details = data;
+            error.status = response.status;
+            throw error;
         }
         return data;
     }
 
     async refreshToken() {
         // TODO: Implement refresh token functionality when backend supports it
-        return false;
+        throw new Error('Refresh token functionality not implemented yet');
     }
 
     get(endpoint) { 
