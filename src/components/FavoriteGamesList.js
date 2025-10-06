@@ -110,13 +110,6 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
   // Handle game link clicks
   const onGameLinkClick = (gameId, gameUrl, event) => {
     handleGameLinkClick(gameId, gameUrl, event);
-    // Update local state to reflect the change immediately
-    setGamesPlayedToday(prev => {
-      if (!prev.includes(gameId)) {
-        return [...prev, gameId];
-      }
-      return prev;
-    });
   };
 
   return (

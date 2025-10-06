@@ -1,11 +1,11 @@
-import { tokenManager } from './tokenManager';
+import { localStorageService } from './localStorageService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://localhost:5001/api';
 
 class ApiClient {
     async request(endpoint, options = {}) {
         const url = `${API_BASE_URL}${endpoint}`;
-        const token = tokenManager.getToken();
+        const token = localStorageService.getAuthToken();
         
         const config = {
             headers: {
@@ -20,7 +20,7 @@ class ApiClient {
         
         if (response.status === 401) {
             // TODO: Implement refresh token functionality when backend supports it
-            tokenManager.clearTokens();
+            localStorageService.clearAuthTokens();
             throw new Error('Authentication failed');
         }
 

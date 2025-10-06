@@ -27,22 +27,22 @@ function App() {
   });
 
   // Listen for localStorage changes to update custom links
-  // useEffect(() => {
-  //   const handleStorageChange = () => {
-  //     const saved = localStorage.getItem('customLinks');
-  //     setCustomLinks(saved ? JSON.parse(saved) : []);
-  //   };
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('customLinks');
+      setCustomLinks(saved ? JSON.parse(saved) : []);
+    };
 
-  //   window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
     
-  //   // Also listen for custom event for same-tab updates
-  //   window.addEventListener('customLinksUpdated', handleStorageChange);
+    // Also listen for custom event for same-tab updates
+    window.addEventListener('customLinksUpdated', handleStorageChange);
     
-  //   return () => {
-  //     window.removeEventListener('storage', handleStorageChange);
-  //     window.removeEventListener('customLinksUpdated', handleStorageChange);
-  //   };
-  // }, []);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('customLinksUpdated', handleStorageChange);
+    };
+  }, []);
 
   // Handle default tab navigation on initial load
   useEffect(() => {
@@ -104,8 +104,6 @@ function App() {
           <Route path="/" element={<AllGames defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/favorites" element={<FavoriteGamesList customLinks={customLinks} defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/login" element={<Login />} />
-          
-          {/* Keep existing routes for backward compatibility */}
           <Route path="/signup" element={<Signup />} />
           <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/edit-score/:gameId" element={<ProtectedRoute><EditScoreForm /></ProtectedRoute>} />

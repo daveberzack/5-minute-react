@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authService } from '../services/authService';
-import { gameService } from '../services/gameService';
+import { login as authLogin, register as authRegister, logout as authLogout, checkAutoLogin } from '../services/authService';
+import { addFriend, removeFriend, addFavorite, removeFavorite, updatePlay, getUserGamePlays, updateGamePlay, getGamePlayForToday, hasScoreForToday } from '../services/gameService';
 import { localStorageService } from '../services/localStorageService';
 import * as gameActivityService from '../services/gameActivityService';
 
@@ -13,38 +13,6 @@ export const AuthProvider = ({ children }) => {
     const [localFavorites, setLocalFavorites] = useState([]);
     const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
 
-    // Centralized function to sync favorites and update state
-    const syncFavoritesAndUpdateState = useCallback((authenticatedUser) => {
-        if (!authenticatedUser) {
-            // No authenticated user, use localStorage favorites only
-            const { favorites } = localStorageService.getFavorites();
-            setLocalFavorites(favorites);
-            setUser(null);
-            return null;
-        }
-
-        // Sync favorites between localStorage and server
-        const syncResult = localStorageService.syncFavorites(
-            authenticatedUser.favorites,
-            authenticatedUser.favoritesLastModified
-        );
-        
-        // Update user object with synced favorites
-        const updatedUser = {
-            ...authenticatedUser,
-            favorites: syncResult.favorites
-        };
-        
-        // If local was newer, update server (TODO: implement bulk update API)
-        if (syncResult.source === 'local' && syncResult.favorites.length !== authenticatedUser.favorites?.length) {
-            console.log('Local favorites are newer, should sync to server:', syncResult.favorites);
-        }
-        
-        setUser(updatedUser);
-        setLocalFavorites(syncResult.favorites);
-        return updatedUser;
-    }, []);
-
     useEffect(() => {
         // Always load favorites from localStorage first for immediate UI
         const { favorites } = localStorageService.getFavorites();
@@ -55,19 +23,25 @@ export const AuthProvider = ({ children }) => {
         setGamesPlayedToday(playedToday);
 
         // Then check for authenticated user and sync
-        authService.checkAutoLogin()
-            .then(syncFavoritesAndUpdateState)
-            .catch(() => syncFavoritesAndUpdateState(null))
-            .finally(() => setIsLoading(false));
+        checkAutoLogin()
+            .then((user) => {
+                if (user) {
+                    setUser(user);
+                }
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error during auto-login:', error);
+                setIsLoading(false);
+            });
     }, []);
 
     const login = async (username, password) => {
         setIsLoading(true);
         setError(null);
         try {
-            const authenticatedUser = await authService.login(username, password);
-            const updatedUser = syncFavoritesAndUpdateState(authenticatedUser);
-            return updatedUser;
+            const authenticatedUser = await authLogin(username, password);
+            return authenticatedUser;
         } catch (err) {
             setError(err.message);
             throw err;
@@ -80,9 +54,8 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(true);
         setError(null);
         try {
-            const authenticatedUser = await authService.register(username, password);
-            const updatedUser = syncFavoritesAndUpdateState(authenticatedUser);
-            return updatedUser;
+            const authenticatedUser = await authRegister(username, password);
+            return authenticatedUser;
         } catch (err) {
             setError(err.message);
             throw err;
@@ -92,14 +65,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await authService.logout();
-        syncFavoritesAndUpdateState(null); // This will set user to null and update favorites from localStorage
+        await authLogout();
     };
 
     // User data management functions
-    const addFriend = async (username) => {
+    const addFriendHandler = async (username) => {
         try {
-            const updatedUser = await gameService.addFriend(username);
+            const updatedUser = await addFriend(username);
             setUser(updatedUser);
             return updatedUser;
         } catch (error) {
@@ -108,9 +80,9 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const removeFriend = async (friendId) => {
+    const removeFriendHandler = async (friendId) => {
         try {
-            const updatedUser = await gameService.removeFriend(friendId);
+            const updatedUser = await removeFriend(friendId);
             setUser(updatedUser);
         } catch (error) {
             console.error("Error removing friend:", error);
@@ -123,7 +95,7 @@ export const AuthProvider = ({ children }) => {
         setLocalFavorites(favorites);
     };
 
-    const addFavorite = async (gameId) => {
+    const addFavoriteHandler = async (gameId) => {
         try {
             // Always update localStorage first (optimistic update)
             localStorageService.addFavorite(gameId);
@@ -132,7 +104,7 @@ export const AuthProvider = ({ children }) => {
             // If user is authenticated, also update server
             if (user) {
                 try {
-                    const updatedUser = await gameService.addFavorite(gameId);
+                    const updatedUser = await addFavorite(gameId);
                     setUser(updatedUser);
                 } catch (error) {
                     console.error("Error syncing favorite to server:", error);
@@ -145,7 +117,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const removeFavorite = async (gameId) => {
+    const removeFavoriteHandler = async (gameId) => {
         try {
             // Always update localStorage first (optimistic update)
             localStorageService.removeFavorite(gameId);
@@ -154,7 +126,7 @@ export const AuthProvider = ({ children }) => {
             // If user is authenticated, also update server
             if (user) {
                 try {
-                    const updatedUser = await gameService.removeFavorite(gameId);
+                    const updatedUser = await removeFavorite(gameId);
                     setUser(updatedUser);
                 } catch (error) {
                     console.error("Error syncing favorite removal to server:", error);
@@ -169,7 +141,7 @@ export const AuthProvider = ({ children }) => {
 
     const updatePlay = async (gameId, score, message) => {
         try {
-            const updatedUser = await gameService.updatePlay(gameId, score, message);
+            const updatedUser = await updatePlay(gameId, score, message);
             setUser(updatedUser);
         } catch (error) {
             console.error("Error updating play:", error);
@@ -223,7 +195,7 @@ export const AuthProvider = ({ children }) => {
 
     const getUserGamePlays = async () => {
         try {
-            return await gameService.getUserGamePlays();
+            return await getUserGamePlays();
         } catch (error) {
             console.error("Error getting user game plays:", error);
             throw error;
@@ -232,7 +204,7 @@ export const AuthProvider = ({ children }) => {
 
     const updateGamePlay = async (playData) => {
         try {
-            const updatedUser = await gameService.updateGamePlay(playData);
+            const updatedUser = await updateGamePlay(playData);
             setUser(updatedUser);
             return updatedUser;
         } catch (error) {
@@ -243,7 +215,7 @@ export const AuthProvider = ({ children }) => {
 
     const getGamePlayForToday = async (gameId, date = null) => {
         try {
-            return await gameService.getGamePlayForToday(gameId, date);
+            return await getGamePlayForToday(gameId, date);
         } catch (error) {
             console.error("Error getting game play for today:", error);
             throw error;
@@ -252,7 +224,7 @@ export const AuthProvider = ({ children }) => {
 
     const hasScoreForToday = async (gameId, date = null) => {
         try {
-            return await gameService.hasScoreForToday(gameId, date);
+            return await hasScoreForToday(gameId, date);
         } catch (error) {
             console.error("Error checking score for today:", error);
             throw error;
@@ -273,12 +245,12 @@ export const AuthProvider = ({ children }) => {
             logout,
             
             // Friend functions
-            addFriend,
-            removeFriend,
+            addFriend: addFriendHandler,
+            removeFriend: removeFriendHandler,
             
             // Favorites functions
-            addFavorite,
-            removeFavorite,
+            addFavorite: addFavoriteHandler,
+            removeFavorite: removeFavoriteHandler,
             favorites: getCurrentFavorites(),
             localFavorites,
             

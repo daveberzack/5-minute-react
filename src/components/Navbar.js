@@ -3,11 +3,9 @@ import { useAuth } from '../contexts/AuthContext';
 
 function Navbar() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  const isLoggedIn = user?.username;
-
-  const socialLink = isLoggedIn ? "/social" : "/login";
+  const isLoggedIn = isAuthenticated;
 
   const isActiveTab = (path) => {
     if (path === '/' && location.pathname === '/') return true;

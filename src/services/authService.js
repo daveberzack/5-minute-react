@@ -1,49 +1,47 @@
 import { apiClient } from './apiClient';
-import { tokenManager } from './tokenManager';
+import { localStorageService } from './localStorageService';
 
-export const authService = {
-    async login(username, password) {
-        const response = await apiClient.post('/auth/login/', { username, password });
-        tokenManager.setTokens(response.token, null); // Django backend doesn't provide refresh token yet
-        
-        // Return user data directly from login response
-        return response.user;
-    },
+export const login = async (username, password) => {
+    const response = await apiClient.post('/auth/login/', { username, password });
+    localStorageService.setAuthTokens(response.token, null); // Django backend doesn't provide refresh token yet
+    
+    // Return user data directly from login response
+    return response.user;
+};
 
-    async register(username, password) {
-        const response = await apiClient.post('/auth/register/', {
-            username, password
-        });
-        tokenManager.setTokens(response.token, null); // Django backend doesn't provide refresh token yet
-        return response.user;
-    },
+export const register = async (username, password) => {
+    const response = await apiClient.post('/auth/register/', {
+        username, password
+    });
+    localStorageService.setAuthTokens(response.token, null); // Django backend doesn't provide refresh token yet
+    return response.user;
+};
 
-    async logout() {
-        try {
-            const refreshToken = tokenManager.getRefreshToken();
-            if (refreshToken) {
-                await apiClient.post('/auth/logout/', { refreshToken });
-            }
-        } finally {
-            tokenManager.clearTokens();
+export const logout = async () => {
+    try {
+        const refreshToken = localStorageService.getRefreshToken();
+        if (refreshToken) {
+            await apiClient.post('/auth/logout/', { refreshToken });
         }
-    },
-
-    async checkAutoLogin() {
-        const token = tokenManager.getToken();
-        if (!token) return null;
-        
-        try {
-            return await this.getCurrentUser();
-        } catch {
-            tokenManager.clearTokens();
-            return null;
-        }
-    },
-
-    async getCurrentUser() {
-        const response = await apiClient.get('/auth/profile/');
-        console.log("getCurrentUser", response);
-        return response;
+    } finally {
+        localStorageService.clearAuthTokens();
     }
+};
+
+export const checkAutoLogin = async () => {
+    const token = localStorageService.getAuthToken();
+    if (!token) return null;
+    
+    try {
+        return await getCurrentUser();
+    } catch {
+        localStorageService.clearAuthTokens();
+        return null;
+    }
+};
+
+export const getCurrentUser = async () => {
+    const response = await apiClient.get('/auth/profile/');
+    console.log("getCurrentUser", response);
+    return response;
 };

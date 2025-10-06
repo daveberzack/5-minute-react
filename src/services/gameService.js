@@ -236,30 +236,3 @@ export const addFavorite = async (gameId) => {
 export const removeFavorite = async (gameId) => {
   return removeFavoriteGame(gameId);
 };
-
-// Export as default object for backward compatibility
-export const gameService = {
-  // Game play operations
-  updateGamePlay,
-  getUserGamePlays,
-  getGamePlaysForDate,
-  getGamePlayForToday,
-  hasScoreForToday,
-  deleteGamePlay,
-  
-  // User game interactions
-  addFavoriteGame,
-  removeFavoriteGame,
-  
-  // Friend operations
-  addFriend,
-  removeFriend,
-  searchUser,
-  
-  // Legacy compatibility
-  updatePlay,
-  addFavorite,
-  removeFavorite
-};
-
-export default gameService;
