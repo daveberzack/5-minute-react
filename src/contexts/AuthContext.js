@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authService } from '../services/authService';
 import { gameService } from '../services/gameService';
 import { localStorageService } from '../services/localStorageService';
+import * as gameActivityService from '../services/gameActivityService';
 
 const AuthContext = createContext();
 
@@ -10,9 +11,10 @@ export const AuthProvider = ({ children }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [localFavorites, setLocalFavorites] = useState([]);
+    const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
 
     // Centralized function to sync favorites and update state
-    const syncFavoritesAndUpdateState = (authenticatedUser) => {
+    const syncFavoritesAndUpdateState = useCallback((authenticatedUser) => {
         if (!authenticatedUser) {
             // No authenticated user, use localStorage favorites only
             const { favorites } = localStorageService.getFavorites();
@@ -41,12 +43,16 @@ export const AuthProvider = ({ children }) => {
         setUser(updatedUser);
         setLocalFavorites(syncResult.favorites);
         return updatedUser;
-    };
+    }, []);
 
     useEffect(() => {
         // Always load favorites from localStorage first for immediate UI
         const { favorites } = localStorageService.getFavorites();
         setLocalFavorites(favorites);
+
+        // Initialize daily game activity tracking
+        const playedToday = gameActivityService.initializeDailyTracking();
+        setGamesPlayedToday(playedToday);
 
         // Then check for authenticated user and sync
         authService.checkAutoLogin()
@@ -175,22 +181,124 @@ export const AuthProvider = ({ children }) => {
         return user?.favorites || localFavorites;
     };
 
+    // ===== GAME ACTIVITY FUNCTIONS =====
+    
+    const initializeDailyTracking = useCallback(() => {
+        const playedToday = gameActivityService.initializeDailyTracking();
+        setGamesPlayedToday(playedToday);
+        return playedToday;
+    }, []);
+
+    const markGameAsPlayed = useCallback((gameId) => {
+        const updatedGames = gameActivityService.markGameAsPlayed(gameId);
+        setGamesPlayedToday(updatedGames);
+        return updatedGames;
+    }, []);
+
+    const hasGameBeenPlayedToday = (gameId) => {
+        return gameActivityService.hasGameBeenPlayedToday(gameId);
+    };
+
+    const handleGameLinkClick = (gameId, gameUrl, event = null) => {
+        const success = gameActivityService.handleGameLinkClick(gameId, gameUrl, event);
+        // Update local state to reflect the change immediately
+        setGamesPlayedToday(prev => {
+            if (!prev.includes(gameId)) {
+                return [...prev, gameId];
+            }
+            return prev;
+        });
+        return success;
+    };
+
+    const checkForRecentGameVisit = () => {
+        return gameActivityService.checkForRecentGameVisit();
+    };
+
+    const clearRecentGameVisit = () => {
+        return gameActivityService.clearRecentGameVisit();
+    };
+
+    // ===== ADDITIONAL GAME SERVICE FUNCTIONS =====
+
+    const getUserGamePlays = async () => {
+        try {
+            return await gameService.getUserGamePlays();
+        } catch (error) {
+            console.error("Error getting user game plays:", error);
+            throw error;
+        }
+    };
+
+    const updateGamePlay = async (playData) => {
+        try {
+            const updatedUser = await gameService.updateGamePlay(playData);
+            setUser(updatedUser);
+            return updatedUser;
+        } catch (error) {
+            console.error("Error updating game play:", error);
+            throw error;
+        }
+    };
+
+    const getGamePlayForToday = async (gameId, date = null) => {
+        try {
+            return await gameService.getGamePlayForToday(gameId, date);
+        } catch (error) {
+            console.error("Error getting game play for today:", error);
+            throw error;
+        }
+    };
+
+    const hasScoreForToday = async (gameId, date = null) => {
+        try {
+            return await gameService.hasScoreForToday(gameId, date);
+        } catch (error) {
+            console.error("Error checking score for today:", error);
+            throw error;
+        }
+    };
+
     return (
         <AuthContext.Provider value={{
+            // Auth state
             user,
             isLoading,
             error,
+            isAuthenticated: !!user,
+            
+            // Auth functions
             login,
             register,
             logout,
-            isAuthenticated: !!user,
+            
+            // Friend functions
             addFriend,
             removeFriend,
+            
+            // Favorites functions
             addFavorite,
             removeFavorite,
-            updatePlay,
             favorites: getCurrentFavorites(),
-            localFavorites
+            localFavorites,
+            
+            // Game activity state
+            gamesPlayedToday,
+            
+            // Game activity functions
+            initializeDailyTracking,
+            markGameAsPlayed,
+            hasGameBeenPlayedToday,
+            handleGameLinkClick,
+            checkForRecentGameVisit,
+            clearRecentGameVisit,
+            
+            // Game service functions
+            getUserGamePlays,
+            updateGamePlay,
+            getGamePlayForToday,
+            hasScoreForToday,
+            updatePlay // Keep legacy function for backward compatibility
         }}>
             {children}
         </AuthContext.Provider>

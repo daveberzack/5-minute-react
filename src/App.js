@@ -11,13 +11,11 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { checkForRecentGameVisit } from './services/gameActivityService';
-import { hasScoreForToday } from './services/gameService';
 
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, checkForRecentGameVisit, hasScoreForToday } = useAuth();
   
   const [defaultTab, setDefaultTab] = useState(() => {
     return localStorage.getItem('defaultTab') || 'all';

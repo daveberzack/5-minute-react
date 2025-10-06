@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
-import { getUserGamePlays } from '../services/gameService';
 import { useNavigate } from 'react-router-dom';
 
 function Friends() {
-  const { user, addFriend, removeFriend, logout, favorites } = useAuth();
+  const { user, addFriend, removeFriend, logout, favorites, getUserGamePlays } = useAuth();
   const navigate = useNavigate();
   const [newFriendName, setNewFriendName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

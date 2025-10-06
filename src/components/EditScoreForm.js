@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { updateGamePlay, getGamePlayForToday } from '../services/gameService';
-import { clearRecentGameVisit } from '../services/gameActivityService';
 import { games } from '../data/games';
 
 function EditScoreForm() {
@@ -15,7 +13,7 @@ function EditScoreForm() {
     const [error, setError] = useState("");
     const [gameName, setGameName] = useState("");
 
-    const { user } = useAuth();
+    const { user, updateGamePlay, getGamePlayForToday, clearRecentGameVisit } = useAuth();
 
     useEffect(() => {
         if (!user || !gameId) return;
@@ -38,7 +36,7 @@ function EditScoreForm() {
         };
 
         loadExistingScore();
-    }, [user, gameId]);
+    }, [user, gameId, getGamePlayForToday]);
 
     const submit = async () => {
         if (!score.trim()) {

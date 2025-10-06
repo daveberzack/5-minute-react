@@ -1,15 +1,16 @@
-import { hasGameBeenPlayedToday } from '../services/gameActivityService';
+import { useAuth } from '../contexts/AuthContext';
 
-function FavoriteGame({ 
-  game, 
-  index, 
+function FavoriteGame({
+  game,
+  index,
   totalGames,
-  isEditMode, 
-  onMove, 
-  onGameLinkClick, 
-  onDeleteCustomLink, 
-  onRemoveFavorite 
+  isEditMode,
+  onMove,
+  onGameLinkClick,
+  onDeleteCustomLink,
+  onRemoveFavorite
 }) {
+  const { hasGameBeenPlayedToday } = useAuth();
   const isCustomLink = game.isCustom;
   
   // All items have consistent styling with full rounded corners

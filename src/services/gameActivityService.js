@@ -3,7 +3,7 @@
  * Business logic for game activity tracking and navigation
  */
 
-import { gameActivityStorage } from '../utils/gameActivityStorage';
+import gameActivityStorage from '../utils/gameActivityStorage';
 
 /**
  * Get today's date in YYYY-MM-DD format

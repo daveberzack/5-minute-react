@@ -2,18 +2,25 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
-import { initializeDailyTracking, hasGameBeenPlayedToday, handleGameLinkClick } from '../services/gameActivityService';
 import Modal, { useModal } from './Modal';
 import AddCustomLink from './AddCustomLink';
 import FavoriteGame from './FavoriteGame';
 
 function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefaultTab = () => {} }) {
   const navigate = useNavigate();
-  const { user, favorites, addFavorite, removeFavorite } = useAuth();
+  const {
+    user,
+    favorites,
+    addFavorite,
+    removeFavorite,
+    gamesPlayedToday,
+    initializeDailyTracking,
+    hasGameBeenPlayedToday,
+    handleGameLinkClick
+  } = useAuth();
   const { isOpen: showModal, message: modalMessage, title: modalTitle, closeModal, handleShowMessage } = useModal();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
-  const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
   const [favoriteOrder, setFavoriteOrder] = useState(() => {
     const saved = localStorage.getItem('favoriteOrder');
     return saved ? JSON.parse(saved) : [];
@@ -22,9 +29,8 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
 
   // Initialize daily tracking on component mount
   useEffect(() => {
-    const playedToday = initializeDailyTracking();
-    setGamesPlayedToday(playedToday);
-  }, []);
+    initializeDailyTracking();
+  }, [initializeDailyTracking]);
 
   useEffect(()=>{
         let fg = favorites.map( favoriteId => {

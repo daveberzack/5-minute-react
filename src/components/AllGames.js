@@ -1,18 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
-import { initializeDailyTracking, hasGameBeenPlayedToday, handleGameLinkClick } from '../services/gameActivityService';
 
 function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
 
-  const { favorites, addFavorite, removeFavorite } = useAuth();
-  const [setGamesPlayedToday] = useState([]);
+  const {
+    favorites,
+    addFavorite,
+    removeFavorite,
+    gamesPlayedToday,
+    initializeDailyTracking,
+    hasGameBeenPlayedToday,
+    handleGameLinkClick
+  } = useAuth();
 
   // Initialize daily tracking on component mount
   useEffect(() => {
-    const playedToday = initializeDailyTracking();
-    setGamesPlayedToday(playedToday);
-  }, []);
+    initializeDailyTracking();
+  }, [initializeDailyTracking]);
 
   const onClickFavorite = (e)=> {
     const id = parseInt(e.target.dataset.id);
@@ -23,17 +28,8 @@ function AllGames({ defaultTab = 'all', updateDefaultTab = () => {} }) {
     removeFavorite(id);
   }
 
-  // Handle game link clicks
-  const onGameLinkClick = (gameId, gameUrl, event) => {
-    handleGameLinkClick(gameId, gameUrl, event);
-    // Update local state to reflect the change immediately
-    setGamesPlayedToday(prev => {
-      if (!prev.includes(gameId)) {
-        return [...prev, gameId];
-      }
-      return prev;
-    });
-  };
+  // Use handleGameLinkClick directly from useAuth
+  const onGameLinkClick = handleGameLinkClick;
 
   return (
     <div className="max-w-4xl mx-auto p-4">
