@@ -46,6 +46,7 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         try {
             const authenticatedUser = await authLogin(username, password);
+            setUser(authenticatedUser); // Set the user state after successful login
             return authenticatedUser;
         } catch (err) {
             setError(err.message);
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }) => {
         setError(null);
         try {
             const authenticatedUser = await authRegister(username, password);
+            setUser(authenticatedUser); // Set the user state after successful registration
             return authenticatedUser;
         } catch (err) {
             setError(err.message);
@@ -71,6 +73,9 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         await authLogout();
+        setUser(null);
+        setFriendsData(null); // Clear friends data on logout
+        setFriendsError(null);
     };
 
     // Friends data management functions
@@ -148,21 +153,18 @@ export const AuthProvider = ({ children }) => {
         setLocalFavorites(favorites);
     };
 
-    const addFavoriteHandler = async (gameId) => {
+    const addFavoriteHandler = (gameId) => {
         try {
-            // Always update localStorage first (optimistic update)
             localStorageService.addFavorite(gameId);
             updateFavoriteState();
-
         } catch (error) {
             console.error("Error adding favorite:", error);
             updateFavoriteState(); // Revert to current localStorage state
         }
     };
 
-    const removeFavoriteHandler = async (gameId) => {
+    const removeFavoriteHandler = (gameId) => {
         try {
-            // Always update localStorage first (optimistic update)
             localStorageService.removeFavorite(gameId);
             updateFavoriteState();
         } catch (error) {
@@ -217,10 +219,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Helper function to get current favorites (from user if authenticated, otherwise from localStorage)
-    const getCurrentFavorites = () => {
-        return localFavorites;
-    };
 
     // ===== GAME ACTIVITY FUNCTIONS =====
     
@@ -299,8 +297,7 @@ export const AuthProvider = ({ children }) => {
             // Favorites functions
             addFavorite: addFavoriteHandler,
             removeFavorite: removeFavoriteHandler,
-            favorites: getCurrentFavorites(),
-            localFavorites,
+            favorites: localFavorites,
             
             // Game activity state
             gamesPlayedToday,

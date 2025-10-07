@@ -40,10 +40,10 @@ function AllGamesList({ defaultTab = 'all', updateDefaultTab = () => {} }) {
       
         <ul id="other-games-list" className="list-none p-0 w-full">
         { games?.map( (game) => {
-          const isFavorite = favorites.includes(game.id*1);
-          const dimGame = gamesPlayedToday.includes(game.id*1);
+          const isFavorite = favorites.includes(game.id);
+          const dimGame = gamesPlayedToday.includes(game.id);
 
-          return <GameListing key={game.id} game={game} isFavorite={isFavorite} toggleFavorite={toggleFavorite} dimGame={dimGame} onGameLinkClick={handleGameLinkClick} />   
+          return <GameListing key={game.id} game={game} isFavorite={isFavorite} toggleFavorite={toggleFavorite} dimGame={dimGame} onGameLinkClick={handleGameLinkClick} />
         })}
       </ul>
     </div>

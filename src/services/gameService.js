@@ -28,95 +28,8 @@ export const updateGamePlay = async (playData) => {
   }
 };
 
-/**
- * Get all game plays for the current user
- * @returns {Promise<Array>} Array of game play records
- */
-export const getUserGamePlays = async () => {
-  try {
-    const response = await apiClient.get('/plays/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user game plays:', error);
-    throw error;
-  }
-};
-
-/**
- * Get game plays for a specific date
- * @param {string} date - Date in YYYY-MM-DD format (optional, defaults to today)
- * @returns {Promise<Array>} Array of game play records for the date
- */
-export const getGamePlaysForDate = async (date = null) => {
-  try {
-    const today = date || new Date().toISOString().split('T')[0];
-    const plays = await getUserGamePlays();
-    
-    // Check if plays is defined and is an array before calling filter
-    if (!plays || !Array.isArray(plays)) {
-      return [];
-    }
-    
-    return plays.filter(play => play.play_date === today);
-  } catch (error) {
-    console.error('Error fetching game plays for date:', error);
-    throw error;
-  }
-};
-
-/**
- * Get a specific game play for today
- * @param {string} gameId - The game ID
- * @param {string} date - Date in YYYY-MM-DD format (optional, defaults to today)
- * @returns {Promise<Object|null>} The game play record or null if not found
- */
-export const getGamePlayForToday = async (gameId, date = null) => {
-  try {
-    const today = date || new Date().toISOString().split('T')[0];
-    const plays = await getUserGamePlays();
-    
-    // Check if plays is defined and is an array before calling find
-    if (!plays || !Array.isArray(plays)) {
-      return null;
-    }
-    
-    return plays.find(play => play.game_id === gameId && play.play_date === today) || null;
-  } catch (error) {
-    console.error('Error fetching game play for today:', error);
-    throw error;
-  }
-};
-
-/**
- * Check if user has a score entered for a game today
- * @param {string} gameId - The game ID
- * @param {string} date - Date in YYYY-MM-DD format (optional, defaults to today)
- * @returns {Promise<boolean>} True if score exists for today
- * @throws {Error} When there's an error checking the score
- */
-export const hasScoreForToday = async (gameId, date = null) => {
-  try {
-    const play = await getGamePlayForToday(gameId, date);
-    return play && play.score !== null && play.score !== '';
-  } catch (error) {
-    console.error('Error checking if score exists for today:', error);
-    throw new Error(`Failed to check if score exists for game ${gameId}: ${error.message}`);
-  }
-};
-
-/**
- * Delete a game play record
- * @param {number} playId - The play record ID
- * @returns {Promise<void>}
- */
-export const deleteGamePlay = async (playId) => {
-  try {
-    await apiClient.delete(`/plays/${playId}/`);
-  } catch (error) {
-    console.error('Error deleting game play:', error);
-    throw error;
-  }
-};
+// Note: Game play retrieval functions removed - now handled by friends dashboard endpoint
+// Individual game play operations are managed through the AuthContext
 
 // ===== USER GAME INTERACTIONS =====
 // Note: Favorites are now handled client-side only via localStorage
@@ -183,20 +96,7 @@ export const searchUser = async (username) => {
 };
 
 // ===== LEGACY COMPATIBILITY =====
-// These functions maintain compatibility with existing code
-
-/**
- * @deprecated Use updateGamePlay instead
- * Legacy compatibility function for userService.updatePlay
- */
-export const updatePlay = async (gameId, score, message) => {
-  return updateGamePlay({
-    game_id: gameId,
-    score: score,
-    message: message || ''
-  });
-};
-
-// Note: addFavorite and removeFavorite legacy functions removed
-// Favorites are now handled client-side only via localStorage
-// Use localStorageService.addFavorite() and localStorageService.removeFavorite() instead
+// Note: All legacy functions removed - use AuthContext functions instead
+// - updatePlay -> use updatePlay from AuthContext
+// - addFavorite/removeFavorite -> use localStorageService directly
+// - getUserGamePlays/getGamePlayForToday/hasScoreForToday -> use AuthContext functions

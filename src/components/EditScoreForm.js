@@ -13,7 +13,7 @@ function EditScoreForm() {
     const [error, setError] = useState("");
     const [gameName, setGameName] = useState("");
 
-    const { user, updateGamePlay, getGamePlayForToday, clearRecentGameVisit } = useAuth();
+    const { user, updatePlay, getGamePlayForToday, clearRecentGameVisit } = useAuth();
 
     useEffect(() => {
         if (!user || !gameId) return;
@@ -48,11 +48,7 @@ function EditScoreForm() {
         setError("");
 
         try {
-            await updateGamePlay({
-                game_id: gameId,
-                score: score.trim(),
-                message: message.trim()
-            });
+            await updatePlay(gameId, score.trim(), message.trim());
 
             // Clear recent game visit data since score has been entered
             clearRecentGameVisit();

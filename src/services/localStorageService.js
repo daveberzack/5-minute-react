@@ -28,13 +28,13 @@ export const localStorageService = {
             // Handle legacy format (just array of favorites)
             if (Array.isArray(parsed)) {
                 return {
-                    favorites: parsed.map(id => typeof id === 'string' ? parseInt(id, 10) : id).filter(id => !isNaN(id)),
+                    favorites: parsed.map(id => String(id)), // Convert to strings
                     lastModified: null
                 };
             }
             
-            // New format with timestamp - ensure IDs are numbers
-            const favorites = (parsed.favorites || []).map(id => typeof id === 'string' ? parseInt(id, 10) : id).filter(id => !isNaN(id));
+            // New format with timestamp - ensure IDs are strings to match games data
+            const favorites = (parsed.favorites || []).map(id => String(id));
             return {
                 favorites,
                 lastModified: parsed.lastModified || null
@@ -67,20 +67,16 @@ export const localStorageService = {
 
     /**
      * Add a favorite game ID
-     * @param {number} gameId - Game ID to add
+     * @param {string} gameId - Game ID to add
      * @returns {string} timestamp of the change
      */
     addFavorite(gameId) {
-        // Ensure gameId is a number
-        const numericGameId = typeof gameId === 'string' ? parseInt(gameId, 10) : gameId;
-        if (isNaN(numericGameId)) {
-            console.error('Invalid gameId provided to addFavorite:', gameId);
-            return this.getFavorites().lastModified;
-        }
+        // Ensure gameId is a string
+        const stringGameId = String(gameId);
         
         const { favorites } = this.getFavorites();
-        if (!favorites.includes(numericGameId)) {
-            favorites.push(numericGameId);
+        if (!favorites.includes(stringGameId)) {
+            favorites.push(stringGameId);
             return this.setFavorites(favorites);
         }
         return this.getFavorites().lastModified;
@@ -88,19 +84,15 @@ export const localStorageService = {
 
     /**
      * Remove a favorite game ID
-     * @param {number} gameId - Game ID to remove
+     * @param {string} gameId - Game ID to remove
      * @returns {string} timestamp of the change
      */
     removeFavorite(gameId) {
-        // Ensure gameId is a number
-        const numericGameId = typeof gameId === 'string' ? parseInt(gameId, 10) : gameId;
-        if (isNaN(numericGameId)) {
-            console.error('Invalid gameId provided to removeFavorite:', gameId);
-            return this.getFavorites().lastModified;
-        }
+        // Ensure gameId is a string
+        const stringGameId = String(gameId);
         
         const { favorites } = this.getFavorites();
-        const newFavorites = favorites.filter(id => id !== numericGameId);
+        const newFavorites = favorites.filter(id => id !== stringGameId);
         if (newFavorites.length !== favorites.length) {
             return this.setFavorites(newFavorites);
         }
@@ -109,18 +101,15 @@ export const localStorageService = {
 
     /**
      * Check if a game is favorited
-     * @param {number} gameId - Game ID to check
+     * @param {string} gameId - Game ID to check
      * @returns {boolean}
      */
     isFavorite(gameId) {
-        // Ensure gameId is a number
-        const numericGameId = typeof gameId === 'string' ? parseInt(gameId, 10) : gameId;
-        if (isNaN(numericGameId)) {
-            throw new Error(`Invalid gameId: ${gameId} must be a valid number`);
-        }
+        // Ensure gameId is a string
+        const stringGameId = String(gameId);
         
         const { favorites } = this.getFavorites();
-        return favorites.includes(numericGameId);
+        return favorites.includes(stringGameId);
     },
 
     /**

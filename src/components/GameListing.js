@@ -1,8 +1,8 @@
 function GameListing({isFavorite, toggleFavorite, onGameLinkClick, game, dimGame}) {
 
     const onClickFavorite = (e)=> {
-      const id = parseInt(e.target.dataset.id);
-      const isFavorite = e.target.dataset.isFavorite=="true";
+      const id = e.target.dataset.id;
+      const isFavorite = e.target.dataset.isFavorite==="true";
       if (isFavorite) toggleFavorite(id, false);
       else toggleFavorite(id, true);
     }

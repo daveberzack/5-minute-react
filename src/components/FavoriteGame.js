@@ -1,5 +1,3 @@
-import { useAuth } from '../contexts/AuthContext';
-
 function FavoriteGame({
   game,
   index,

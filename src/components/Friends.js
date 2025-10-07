@@ -9,7 +9,6 @@ function Friends() {
     addFriend,
     removeFriend,
     logout,
-    favorites,
     friendsData,
     friendsLoading,
     friendsError,
@@ -71,11 +70,32 @@ function Friends() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Get user's favorite games for table headers
-  const favoriteGames = favorites ?
-    favorites.map(gameId => games.find(game => game.id === gameId)).filter(Boolean) :
-    [];
+  // Get all games that have scores recorded today (by user or friends)
+  const getGamesWithScores = () => {
+    if (!friendsData) return [];
+    
+    const gameIdsWithScores = new Set();
+    
+    // Add games from user's plays
+    Object.keys(friendsData.today_plays || {}).forEach(gameId => {
+      gameIdsWithScores.add(gameId);
+    });
+    
+    // Add games from friends' plays
+    Object.values(friendsData.friends_plays || {}).forEach(friendPlays => {
+      Object.keys(friendPlays).forEach(gameId => {
+        gameIdsWithScores.add(gameId);
+      });
+    });
+    
+    // Convert game IDs to game objects
+    return Array.from(gameIdsWithScores)
+      .map(gameId => games.find(game => game.id === gameId))
+      .filter(Boolean)
+      .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+  };
 
+  const gamesWithScores = getGamesWithScores();
 
   // Calculate how many game columns can fit based on screen width
   // Reserve space for padding/margins: ~40px
@@ -85,11 +105,11 @@ function Friends() {
   const maxGameColumns = Math.max(1, Math.floor((availableWidth - 120) / gameColumnWidth)); // Reserve min 120px for username
   
   // Dynamic pagination based on screen width
-  const gamesPerPage = Math.min(maxGameColumns, favoriteGames.length);
-  const totalPages = Math.ceil(favoriteGames.length / gamesPerPage);
+  const gamesPerPage = Math.min(maxGameColumns, gamesWithScores.length);
+  const totalPages = Math.ceil(gamesWithScores.length / gamesPerPage);
   const startIndex = currentGamePage * gamesPerPage;
   const endIndex = startIndex + gamesPerPage;
-  const currentPageGames = favoriteGames.slice(startIndex, endIndex);
+  const currentPageGames = gamesWithScores.slice(startIndex, endIndex);
   
   // Calculate flexible username column width (fills remaining space)
   const gameColumnsWidth = currentPageGames.length * gameColumnWidth;
@@ -107,11 +127,6 @@ function Friends() {
     }
   };
 
-  // Helper function to get today's date in YYYY-MM-DD format
-  const getTodayDate = () => {
-    return new Date().toISOString().split('T')[0];
-  };
-
   // Helper function to get score for a specific user and game today
   const getScoreForUserGame = (userId, gameId, isCurrentUser = false) => {
     if (!friendsData) return null;
@@ -121,8 +136,12 @@ function Friends() {
       const play = friendsData.today_plays[gameId.toString()];
       return play ? { score: play.score, message: play.message } : null;
     } else {
-      // For friends, we don't have their game data yet
-      // This would require additional API endpoints to get friends' scores
+      // For friends, use friends_plays data
+      const friendPlays = friendsData.friends_plays[userId.toString()];
+      if (friendPlays) {
+        const play = friendPlays[gameId.toString()];
+        return play ? { score: play.score, message: play.message } : null;
+      }
       return null;
     }
   };
@@ -142,7 +161,7 @@ function Friends() {
     {
       username: friendsData?.user?.username || user?.username || '',
       isCurrentUser: true,
-      id: null
+      id: friendsData?.user?.id || user?.id || null
     },
     ...(friendsData?.friends || []).map(friend => ({
       username: friend.username,
@@ -190,7 +209,7 @@ function Friends() {
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-left py-3 px-2 pl-4" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
-                    {favoriteGames.length > gamesPerPage ? (
+                    {gamesWithScores.length > gamesPerPage ? (
                       <div className="flex items-center justify-start space-x-1">
                         <button
                           onClick={goToPrevPage}
@@ -222,9 +241,9 @@ function Friends() {
                       <span className="text-gray-500 text-sm">Players</span>
                     )}
                   </th>
-                  {favoriteGames.length === 0 ? (
+                  {gamesWithScores.length === 0 ? (
                     <th className="text-center py-3 px-2 text-gray-500 italic">
-                      Add some favorite games to see them here
+                      No games with scores recorded today
                     </th>
                   ) : (
                     <>
@@ -253,7 +272,7 @@ function Friends() {
                     <td className="py-3 px-2 pl-4 font-medium text-gray-800 text-left" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
                       {player.username}
                     </td>
-                    {favoriteGames.length === 0 ? (
+                    {gamesWithScores.length === 0 ? (
                       <td className="text-center py-3 px-2 text-gray-400">
                         -
                       </td>

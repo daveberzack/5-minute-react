@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
 import { localStorageService } from '../services/localStorageService';
@@ -8,17 +7,15 @@ import AddCustomLink from './AddCustomLink';
 import FavoriteGame from './FavoriteGame';
 
 function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefaultTab = () => {} }) {
-  const navigate = useNavigate();
   const {
     user,
     favorites,
-    addFavorite,
     removeFavorite,
     gamesPlayedToday,
     initializeDailyTracking,
     handleGameLinkClick
   } = useAuth();
-  const { isOpen: showModal, message: modalMessage, title: modalTitle, closeModal, handleShowMessage } = useModal();
+  const { isOpen: showModal, message: modalMessage, title: modalTitle, closeModal } = useModal();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
   const [favoriteOrder, setFavoriteOrder] = useState(() => {
@@ -33,8 +30,8 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
 
   useEffect(()=>{
         let fg = favorites.map( favoriteId => {
-            return games.find( g => g.id == favoriteId )
-        });
+            return games.find( g => g.id === favoriteId )
+        }).filter(game => game !== undefined); // Filter out undefined games
         fg = fg || [];
         
         // Combine favorites and custom links
@@ -63,12 +60,7 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
           setFavoriteGames(allFavorites);
         }
         
-  },[games, user, favorites, customLinks, favoriteOrder]);
-
-  const onClickEditPlay = (e)=> {
-    const id = e.currentTarget.dataset.id;
-    navigate(`/edit-score/${id}`);
-  }
+  },[user, favorites, customLinks, favoriteOrder]);
 
   const handleRemoveFavorite = (gameId) => {
     removeFavorite(gameId);
