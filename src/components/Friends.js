@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
 import { useNavigate } from 'react-router-dom';
+import Modal, { useModal } from './Modal';
 
 function Friends() {
   const {
@@ -20,6 +21,9 @@ function Friends() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentGamePage, setCurrentGamePage] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  
+  // Modal for showing friends' messages
+  const { isOpen, message, title, showModal, closeModal } = useModal();
 
   const onClickRemove = (e) => {
     const id = e.target.dataset.id;
@@ -147,12 +151,18 @@ function Friends() {
   };
 
   // Helper function to handle score cell click
-  const handleScoreCellClick = (gameId, isCurrentUser) => {
+  const handleScoreCellClick = (gameId, isCurrentUser, userId, username) => {
     if (isCurrentUser) {
       // Navigate to edit score form
       navigate(`/edit-score/${gameId}`, {
         state: { from: '/friends' }
       });
+    } else {
+      // Show modal with friend's message if it exists
+      const scoreData = getScoreForUserGame(userId, gameId, false);
+      if (scoreData && scoreData.message && scoreData.message.trim()) {
+        showModal(scoreData.message, `${username}'s Message`);
+      }
     }
   };
 
@@ -238,7 +248,7 @@ function Friends() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-gray-500 text-sm">Players</span>
+                      <span className="text-gray-500 text-sm"></span>
                     )}
                   </th>
                   {gamesWithScores.length === 0 ? (
@@ -286,9 +296,9 @@ function Friends() {
                           return (
                             <td
                               key={game.id}
-                              className={`text-center py-3 px-2 ${player.isCurrentUser ? 'cursor-pointer hover:bg-blue-100' : ''}`}
+                              className={`text-center py-3 px-2 ${player.isCurrentUser || (hasScore && hasMessage) ? 'cursor-pointer hover:bg-blue-100' : ''}`}
                               style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}
-                              onClick={() => player.isCurrentUser && handleScoreCellClick(game.id, player.isCurrentUser)}
+                              onClick={() => handleScoreCellClick(game.id, player.isCurrentUser, player.id, player.username)}
                             >
                               {hasScore ? (
                                 <div className="relative inline-block">
@@ -296,7 +306,7 @@ function Friends() {
                                     {scoreData.score}
                                   </span>
                                   {hasMessage && (
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <div className="absolute -top-1 -right-3 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
                                       <span className="text-white text-xs">💬</span>
                                     </div>
                                   )}
@@ -390,6 +400,14 @@ function Friends() {
           Log Out
         </button>
       </div>
+
+      {/* Modal for showing friends' messages */}
+      <Modal
+        isOpen={isOpen}
+        onClose={closeModal}
+        message={message}
+        title={title}
+      />
     </section>
   );
 }
