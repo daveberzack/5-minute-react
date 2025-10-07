@@ -8,14 +8,15 @@ function FavoriteGame({
   onMove,
   onGameLinkClick,
   onDeleteCustomLink,
-  onRemoveFavorite
+  onRemoveFavorite,
+  dimGame
 }) {
-  const { hasGameBeenPlayedToday } = useAuth();
+
   const isCustomLink = game.isCustom;
   
   // All items have consistent styling with full rounded corners
   let itemStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
-  if (hasGameBeenPlayedToday(game.id)) itemStyle.backgroundColor = "#FFFFFF99";
+  if (dimGame) itemStyle.backgroundColor = "#FFFFFF99";
 
   return (
     <li

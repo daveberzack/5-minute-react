@@ -101,16 +101,6 @@ export const AuthProvider = ({ children }) => {
             localStorageService.addFavorite(gameId);
             updateFavoriteState();
 
-            // If user is authenticated, also update server
-            if (user) {
-                try {
-                    const updatedUser = await addFavorite(gameId);
-                    setUser(updatedUser);
-                } catch (error) {
-                    console.error("Error syncing favorite to server:", error);
-                    // Keep localStorage change even if server fails
-                }
-            }
         } catch (error) {
             console.error("Error adding favorite:", error);
             updateFavoriteState(); // Revert to current localStorage state
@@ -122,17 +112,6 @@ export const AuthProvider = ({ children }) => {
             // Always update localStorage first (optimistic update)
             localStorageService.removeFavorite(gameId);
             updateFavoriteState();
-
-            // If user is authenticated, also update server
-            if (user) {
-                try {
-                    const updatedUser = await removeFavorite(gameId);
-                    setUser(updatedUser);
-                } catch (error) {
-                    console.error("Error syncing favorite removal to server:", error);
-                    // Keep localStorage change even if server fails
-                }
-            }
         } catch (error) {
             console.error("Error removing favorite:", error);
             updateFavoriteState(); // Revert to current localStorage state
@@ -150,7 +129,7 @@ export const AuthProvider = ({ children }) => {
 
     // Helper function to get current favorites (from user if authenticated, otherwise from localStorage)
     const getCurrentFavorites = () => {
-        return user?.favorites || localFavorites;
+        return localFavorites;
     };
 
     // ===== GAME ACTIVITY FUNCTIONS =====

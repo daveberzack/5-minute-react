@@ -104,7 +104,7 @@ function EditScoreForm() {
             <div className="space-y-4">
                 <div>
                     <label htmlFor="score-field" className="block text-sm font-medium text-gray-700 mb-1">
-                        Score *
+                        Score
                     </label>
                     <input
                         id="score-field"

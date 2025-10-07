@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import AllGames from './components/AllGames';
+import AllGamesList from './components/AllGamesList';
 import FavoriteGamesList from './components/FavoriteGamesList';
 import Login from './components/Login';
 import './App.css';
@@ -101,7 +101,7 @@ function App() {
       <Navbar />
       <main className="App-content">
         <Routes>
-          <Route path="/" element={<AllGames defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
+          <Route path="/" element={<AllGamesList defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/favorites" element={<FavoriteGamesList customLinks={customLinks} defaultTab={defaultTab} updateDefaultTab={updateDefaultTab} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />

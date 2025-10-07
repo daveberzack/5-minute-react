@@ -13,8 +13,8 @@ function Signup() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Form validation 
-    const isPasswordValid = password.length >= 8 || password.length === 0;
-    const isFormValid = username.length > 0 && password.length >= 8;
+    const isPasswordValid = true //password.length >= 8;
+    const isFormValid = username.length > 0 && isPasswordValid;
 
     const submitForm = async () => {
         if (password.length < 8) {

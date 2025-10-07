@@ -15,7 +15,6 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
     removeFavorite,
     gamesPlayedToday,
     initializeDailyTracking,
-    hasGameBeenPlayedToday,
     handleGameLinkClick
   } = useAuth();
   const { isOpen: showModal, message: modalMessage, title: modalTitle, closeModal, handleShowMessage } = useModal();
@@ -128,10 +127,13 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
       
       {favoriteGames && favoriteGames.length > 0 ? (
         <ul id="favorite-games-list" className="list-none p-0 w-full">
-          {favoriteGames?.map((f, index) => (
-            <FavoriteGame
-              key={f.id}
-              game={f}
+          {favoriteGames?.map((game, index) => {
+            
+            const dimGame = gamesPlayedToday.includes(game.id*1);
+
+            return <FavoriteGame
+              key={game.id}
+              game={game}
               index={index}
               totalGames={favoriteGames.length}
               isEditMode={isEditMode}
@@ -139,8 +141,9 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
               onGameLinkClick={onGameLinkClick}
               onDeleteCustomLink={handleDeleteCustomLink}
               onRemoveFavorite={handleRemoveFavorite}
+              dimGame={dimGame}
             />
-          ))}
+          })}
         </ul>
       ) : (
         <div className="text-center py-12 px-4">
