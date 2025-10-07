@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { login as authLogin, register as authRegister, logout as authLogout, checkAutoLogin } from '../services/authService';
-import { addFriend, removeFriend, addFavorite, removeFavorite, updatePlay, getUserGamePlays, updateGamePlay, getGamePlayForToday, hasScoreForToday } from '../services/gameService';
+import { getFriendsDashboard, addFriend, removeFriend, updateGamePlay } from '../services/gameService';
 import { localStorageService } from '../services/localStorageService';
 import * as gameActivityService from '../services/gameActivityService';
 
@@ -12,6 +12,11 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const [localFavorites, setLocalFavorites] = useState([]);
     const [gamesPlayedToday, setGamesPlayedToday] = useState([]);
+    
+    // Friends data state (only loaded when Friends tab is visited)
+    const [friendsData, setFriendsData] = useState(null);
+    const [friendsLoading, setFriendsLoading] = useState(false);
+    const [friendsError, setFriendsError] = useState(null);
 
     useEffect(() => {
         // Always load favorites from localStorage first for immediate UI
@@ -68,13 +73,50 @@ export const AuthProvider = ({ children }) => {
         await authLogout();
     };
 
-    // User data management functions
+    // Friends data management functions
+    const loadFriendsData = async () => {
+        if (friendsData || friendsLoading) return friendsData; // Already loaded or loading
+        
+        setFriendsLoading(true);
+        setFriendsError(null);
+        try {
+            const data = await getFriendsDashboard();
+            setFriendsData(data);
+            return data;
+        } catch (error) {
+            console.error("Error loading friends data:", error);
+            setFriendsError(error.message);
+            throw error;
+        } finally {
+            setFriendsLoading(false);
+        }
+    };
+
     const addFriendHandler = async (username) => {
         try {
-            const updatedUser = await addFriend(username);
-            setUser(updatedUser);
-            return updatedUser;
+            // Optimistic update
+            if (friendsData) {
+                const newFriend = { id: Date.now(), username }; // Temporary ID
+                setFriendsData(prev => ({
+                    ...prev,
+                    friends: [...prev.friends, newFriend]
+                }));
+            }
+            
+            await addFriend(username);
+            
+            // Refresh friends data to get correct ID
+            if (friendsData) {
+                await loadFriendsData();
+            }
         } catch (error) {
+            // Revert optimistic update on error
+            if (friendsData) {
+                setFriendsData(prev => ({
+                    ...prev,
+                    friends: prev.friends.filter(f => f.username !== username)
+                }));
+            }
             console.error("Error adding friend:", error);
             throw new Error(`Failed to add friend ${username}: ${error.message}`);
         }
@@ -82,9 +124,20 @@ export const AuthProvider = ({ children }) => {
 
     const removeFriendHandler = async (friendId) => {
         try {
-            const updatedUser = await removeFriend(friendId);
-            setUser(updatedUser);
+            // Optimistic update
+            if (friendsData) {
+                setFriendsData(prev => ({
+                    ...prev,
+                    friends: prev.friends.filter(f => f.id !== friendId)
+                }));
+            }
+            
+            await removeFriend(friendId);
         } catch (error) {
+            // Refresh data on error to revert
+            if (friendsData) {
+                await loadFriendsData();
+            }
             console.error("Error removing friend:", error);
         }
     };
@@ -118,12 +171,49 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const updatePlay = async (gameId, score, message) => {
+    const updatePlayHandler = async (gameId, score, message) => {
         try {
-            const updatedUser = await updatePlay(gameId, score, message);
-            setUser(updatedUser);
+            // Optimistic update to friends data if loaded
+            if (friendsData) {
+                setFriendsData(prev => ({
+                    ...prev,
+                    today_plays: {
+                        ...prev.today_plays,
+                        [gameId]: { score, message }
+                    }
+                }));
+            }
+            
+            await updateGamePlay({
+                game_id: gameId,
+                score: score,
+                message: message || ''
+            });
         } catch (error) {
+            // Revert optimistic update on error
+            if (friendsData) {
+                const originalPlay = friendsData.today_plays[gameId];
+                if (originalPlay) {
+                    setFriendsData(prev => ({
+                        ...prev,
+                        today_plays: {
+                            ...prev.today_plays,
+                            [gameId]: originalPlay
+                        }
+                    }));
+                } else {
+                    setFriendsData(prev => {
+                        const newPlays = { ...prev.today_plays };
+                        delete newPlays[gameId];
+                        return {
+                            ...prev,
+                            today_plays: newPlays
+                        };
+                    });
+                }
+            }
             console.error("Error updating play:", error);
+            throw error;
         }
     };
 
@@ -170,44 +260,17 @@ export const AuthProvider = ({ children }) => {
         return gameActivityService.clearRecentGameVisit();
     };
 
-    // ===== ADDITIONAL GAME SERVICE FUNCTIONS =====
+    // ===== SIMPLIFIED GAME FUNCTIONS =====
 
-    const getUserGamePlays = async () => {
-        try {
-            return await getUserGamePlays();
-        } catch (error) {
-            console.error("Error getting user game plays:", error);
-            throw error;
-        }
+    const hasScoreForToday = (gameId) => {
+        if (!friendsData) return false;
+        const play = friendsData.today_plays[gameId];
+        return play && play.score !== null && play.score !== '';
     };
 
-    const updateGamePlay = async (playData) => {
-        try {
-            const updatedUser = await updateGamePlay(playData);
-            setUser(updatedUser);
-            return updatedUser;
-        } catch (error) {
-            console.error("Error updating game play:", error);
-            throw error;
-        }
-    };
-
-    const getGamePlayForToday = async (gameId, date = null) => {
-        try {
-            return await getGamePlayForToday(gameId, date);
-        } catch (error) {
-            console.error("Error getting game play for today:", error);
-            throw error;
-        }
-    };
-
-    const hasScoreForToday = async (gameId, date = null) => {
-        try {
-            return await hasScoreForToday(gameId, date);
-        } catch (error) {
-            console.error("Error checking score for today:", error);
-            throw error;
-        }
+    const getGamePlayForToday = (gameId) => {
+        if (!friendsData) return null;
+        return friendsData.today_plays[gameId] || null;
     };
 
     return (
@@ -222,6 +285,12 @@ export const AuthProvider = ({ children }) => {
             login,
             register,
             logout,
+            
+            // Friends data state
+            friendsData,
+            friendsLoading,
+            friendsError,
+            loadFriendsData,
             
             // Friend functions
             addFriend: addFriendHandler,
@@ -245,11 +314,9 @@ export const AuthProvider = ({ children }) => {
             clearRecentGameVisit,
             
             // Game service functions
-            getUserGamePlays,
-            updateGamePlay,
+            updatePlay: updatePlayHandler,
             getGamePlayForToday,
-            hasScoreForToday,
-            updatePlay // Keep legacy function for backward compatibility
+            hasScoreForToday
         }}>
             {children}
         </AuthContext.Provider>

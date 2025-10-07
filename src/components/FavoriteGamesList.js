@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { games } from '../data/games';
+import { localStorageService } from '../services/localStorageService';
 import Modal, { useModal } from './Modal';
 import AddCustomLink from './AddCustomLink';
 import FavoriteGame from './FavoriteGame';
@@ -21,8 +22,7 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
 
   const [favoriteGames, setFavoriteGames] = useState([]);
   const [favoriteOrder, setFavoriteOrder] = useState(() => {
-    const saved = localStorage.getItem('favoriteOrder');
-    return saved ? JSON.parse(saved) : [];
+    return localStorageService.getFavoriteOrder();
   });
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -75,12 +75,7 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
   }
 
   const handleDeleteCustomLink = (linkId) => {
-    const existingLinks = JSON.parse(localStorage.getItem('customLinks') || '[]');
-    const updatedLinks = existingLinks.filter(link => link.id !== linkId);
-    localStorage.setItem('customLinks', JSON.stringify(updatedLinks));
-    
-    // Trigger custom event for updates
-    window.dispatchEvent(new Event('customLinksUpdated'));
+    localStorageService.removeCustomLink(linkId);
   }
 
   // Move item in the list (direction: -1 for up, 1 for down)
@@ -103,7 +98,7 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
       item.isCustom ? `custom-${item.id}` : `game-${item.id}`
     );
     setFavoriteOrder(newOrder);
-    localStorage.setItem('favoriteOrder', JSON.stringify(newOrder));
+    localStorageService.setFavoriteOrder(newOrder);
   };
 
   // Handle game link clicks

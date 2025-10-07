@@ -4,14 +4,23 @@ import { games } from '../data/games';
 import { useNavigate } from 'react-router-dom';
 
 function Friends() {
-  const { user, addFriend, removeFriend, logout, favorites, getUserGamePlays } = useAuth();
+  const {
+    user,
+    addFriend,
+    removeFriend,
+    logout,
+    favorites,
+    friendsData,
+    friendsLoading,
+    friendsError,
+    loadFriendsData
+  } = useAuth();
   const navigate = useNavigate();
   const [newFriendName, setNewFriendName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [currentGamePage, setCurrentGamePage] = useState(0);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  const [userGamePlays, setUserGamePlays] = useState([]);
 
   const onClickRemove = (e) => {
     const id = e.target.dataset.id;
@@ -36,21 +45,20 @@ function Friends() {
     setErrorMessage(""); // Clear any error messages when toggling
   }
 
-  // Load game plays data when user changes
+  // Load friends data on first visit
   useEffect(() => {
-    const loadGamePlays = async () => {
+    const loadData = async () => {
       if (!user) return;
       
       try {
-        const plays = await getUserGamePlays();
-        setUserGamePlays(plays);
+        await loadFriendsData();
       } catch (error) {
-        console.error('Error loading game plays:', error);
+        console.error('Error loading friends data:', error);
       }
     };
 
-    loadGamePlays();
-  }, [user]);
+    loadData();
+  }, [user, loadFriendsData]);
 
   // Handle window resize to recalculate columns
   useEffect(() => {
@@ -106,21 +114,15 @@ function Friends() {
 
   // Helper function to get score for a specific user and game today
   const getScoreForUserGame = (userId, gameId, isCurrentUser = false) => {
+    if (!friendsData) return null;
+    
     if (isCurrentUser) {
-      // For current user, use the loaded game plays
-      // Check if userGamePlays is defined and is an array before calling find
-      if (!userGamePlays || !Array.isArray(userGamePlays)) {
-        return null;
-      }
-      
-      const today = getTodayDate();
-      const play = userGamePlays.find(play =>
-        play.game_id === gameId.toString() && play.play_date === today
-      );
+      // For current user, use today_plays from friends data
+      const play = friendsData.today_plays[gameId.toString()];
       return play ? { score: play.score, message: play.message } : null;
     } else {
-      // For friends, we'll need to implement this when we have friends' data
-      // For now, return null (will show pencil icon)
+      // For friends, we don't have their game data yet
+      // This would require additional API endpoints to get friends' scores
       return null;
     }
   };
@@ -138,16 +140,45 @@ function Friends() {
   // Create table data: user first, then friends
   const tableData = [
     {
-      username: user?.username || '',
+      username: friendsData?.user?.username || user?.username || '',
       isCurrentUser: true,
       id: null
     },
-    ...(user?.friends || []).map(friend => ({
+    ...(friendsData?.friends || []).map(friend => ({
       username: friend.username,
       isCurrentUser: false,
       id: friend.id
     }))
   ];
+
+  // Show loading state
+  if (friendsLoading) {
+    return (
+      <section id="friends" className="max-w-6xl mx-auto p-2 sm:p-3 relative z-10">
+        <div className="game-card p-8 text-center">
+          <div className="loading-spinner mx-auto mb-3"></div>
+          <p className="text-gray-600">Loading friends data...</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state with retry button
+  if (friendsError) {
+    return (
+      <section id="friends" className="max-w-6xl mx-auto p-2 sm:p-3 relative z-10">
+        <div className="game-card p-8 text-center">
+          <p className="text-red-600 mb-4">Error loading friends data: {friendsError}</p>
+          <button
+            onClick={() => loadFriendsData()}
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="friends" className="max-w-6xl mx-auto p-2 sm:p-3 relative z-10">

@@ -119,54 +119,33 @@ export const deleteGamePlay = async (playId) => {
 };
 
 // ===== USER GAME INTERACTIONS =====
-
-/**
- * Add a game to user's favorites
- * @param {string} gameId - The game ID
- * @returns {Promise<Object>} The updated user profile
- */
-export const addFavoriteGame = async (gameId) => {
-  try {
-    await apiClient.post('/favorites/add/', { game_id: gameId });
-    // After adding favorite, fetch updated user profile
-    const updatedUser = await apiClient.get('/auth/profile/');
-    return updatedUser;
-  } catch (error) {
-    console.error('Error adding favorite game:', error);
-    throw error;
-  }
-};
-
-/**
- * Remove a game from user's favorites
- * @param {string} gameId - The game ID
- * @returns {Promise<Object>} The updated user profile
- */
-export const removeFavoriteGame = async (gameId) => {
-  try {
-    await apiClient.delete(`/favorites/${gameId}/remove/`);
-    // After removing favorite, fetch updated user profile
-    const updatedUser = await apiClient.get('/auth/profile/');
-    return updatedUser;
-  } catch (error) {
-    console.error('Error removing favorite game:', error);
-    throw error;
-  }
-};
+// Note: Favorites are now handled client-side only via localStorage
+// See localStorageService for favorites management
 
 // ===== FRIEND OPERATIONS =====
 
 /**
+ * Get friends dashboard data (user, friends, today's plays)
+ * @returns {Promise<Object>} Dashboard data with user, friends, and today_plays
+ */
+export const getFriendsDashboard = async () => {
+  try {
+    const response = await apiClient.get('/friends/dashboard/');
+    return response;
+  } catch (error) {
+    console.error('Error fetching friends dashboard:', error);
+    throw error;
+  }
+};
+
+/**
  * Add a friend by username
  * @param {string} username - The username to add as friend
- * @returns {Promise<Object>} The updated user profile
+ * @returns {Promise<void>} Success confirmation
  */
 export const addFriend = async (username) => {
   try {
     await apiClient.post('/friends/add/', { username });
-    // After adding friend, fetch updated user profile
-    const updatedUser = await apiClient.get('/auth/profile/');
-    return updatedUser;
   } catch (error) {
     console.error('Error adding friend:', error);
     throw error;
@@ -176,14 +155,11 @@ export const addFriend = async (username) => {
 /**
  * Remove a friend
  * @param {number} friendId - The friend ID to remove
- * @returns {Promise<Object>} The updated user profile
+ * @returns {Promise<void>} Success confirmation
  */
 export const removeFriend = async (friendId) => {
   try {
     await apiClient.delete(`/friends/${friendId}/remove/`);
-    // After removing friend, fetch updated user profile
-    const updatedUser = await apiClient.get('/auth/profile/');
-    return updatedUser;
   } catch (error) {
     console.error('Error removing friend:', error);
     throw error;
@@ -221,18 +197,6 @@ export const updatePlay = async (gameId, score, message) => {
   });
 };
 
-/**
- * @deprecated Use addFavoriteGame instead
- * Legacy compatibility function for userService.addFavorite
- */
-export const addFavorite = async (gameId) => {
-  return addFavoriteGame(gameId);
-};
-
-/**
- * @deprecated Use removeFavoriteGame instead
- * Legacy compatibility function for userService.removeFavorite
- */
-export const removeFavorite = async (gameId) => {
-  return removeFavoriteGame(gameId);
-};
+// Note: addFavorite and removeFavorite legacy functions removed
+// Favorites are now handled client-side only via localStorage
+// Use localStorageService.addFavorite() and localStorageService.removeFavorite() instead

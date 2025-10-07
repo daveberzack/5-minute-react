@@ -9,6 +9,7 @@ import Friends from './components/Friends';
 import Navbar from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuth } from './contexts/AuthContext';
+import { localStorageService } from './services/localStorageService';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -18,19 +19,17 @@ function App() {
   const { isLoading, isAuthenticated, checkForRecentGameVisit, hasScoreForToday } = useAuth();
   
   const [defaultTab, setDefaultTab] = useState(() => {
-    return localStorage.getItem('defaultTab') || 'all';
+    return localStorageService.getDefaultTab();
   });
   
   const [customLinks, setCustomLinks] = useState(() => {
-    const saved = localStorage.getItem('customLinks');
-    return saved ? JSON.parse(saved) : [];
+    return localStorageService.getCustomLinks();
   });
 
   // Listen for localStorage changes to update custom links
   useEffect(() => {
     const handleStorageChange = () => {
-      const saved = localStorage.getItem('customLinks');
-      setCustomLinks(saved ? JSON.parse(saved) : []);
+      setCustomLinks(localStorageService.getCustomLinks());
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -81,7 +80,7 @@ function App() {
 
   const updateDefaultTab = (tab) => {
     setDefaultTab(tab);
-    localStorage.setItem('defaultTab', tab);
+    localStorageService.setDefaultTab(tab);
   };
   
   if (isLoading) {

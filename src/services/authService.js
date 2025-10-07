@@ -33,7 +33,13 @@ export const checkAutoLogin = async () => {
     if (!token) return null;
     
     try {
-        return await getCurrentUser();
+        // Just verify the token is valid, don't fetch full profile
+        const response = await apiClient.get('/auth/profile/');
+        return {
+            id: response.id,
+            username: response.username,
+            created_at: response.created_at
+        };
     } catch {
         localStorageService.clearAuthTokens();
         return null;
@@ -42,6 +48,9 @@ export const checkAutoLogin = async () => {
 
 export const getCurrentUser = async () => {
     const response = await apiClient.get('/auth/profile/');
-    console.log("getCurrentUser", response);
-    return response;
+    return {
+        id: response.id,
+        username: response.username,
+        created_at: response.created_at
+    };
 };

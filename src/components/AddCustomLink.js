@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import EmojiPicker from 'emoji-picker-react';
+import { localStorageService } from '../services/localStorageService';
 
 function AddCustomLink() {
   // Form state
@@ -42,13 +43,8 @@ function AddCustomLink() {
         isCustom: true
       };
       
-      // Add new link to existing custom links
-      const existingLinks = JSON.parse(localStorage.getItem('customLinks') || '[]');
-      const updatedLinks = [...existingLinks, newLink];
-      localStorage.setItem('customLinks', JSON.stringify(updatedLinks));
-      
-      // Trigger custom event for same-tab updates
-      window.dispatchEvent(new Event('customLinksUpdated'));
+      // Add new link using localStorage service
+      localStorageService.addCustomLink(newLink);
       
       // Reset form
       setName('');
