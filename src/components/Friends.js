@@ -43,9 +43,19 @@ function Friends() {
     await logout();
   }
 
-  const toggleEditMode = () => {
+  const toggleEditMode = async () => {
+    const wasEditing = isEditing;
     setIsEditing(!isEditing);
     setErrorMessage(""); // Clear any error messages when toggling
+    
+    // If we were editing and now we're done editing, refresh friends data
+    if (wasEditing && !isEditing) {
+      try {
+        await loadFriendsData();
+      } catch (error) {
+        console.error('Error refreshing friends data after editing:', error);
+      }
+    }
   }
 
   // Load friends data on first visit
@@ -92,11 +102,22 @@ function Friends() {
       });
     });
     
-    // Convert game IDs to game objects
+    // Convert game IDs to game objects and sort with user's games first
     return Array.from(gameIdsWithScores)
       .map(gameId => games.find(game => game.id === gameId))
       .filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name)); // Sort alphabetically
+      .sort((a, b) => {
+        // Check if user has scores for each game
+        const userHasScoreA = !!(friendsData.today_plays && friendsData.today_plays[a.id]);
+        const userHasScoreB = !!(friendsData.today_plays && friendsData.today_plays[b.id]);
+        
+        // If one has user score and other doesn't, prioritize the one with user score
+        if (userHasScoreA && !userHasScoreB) return -1;
+        if (!userHasScoreA && userHasScoreB) return 1;
+        
+        // If both have user scores or both don't, sort alphabetically
+        return a.name.localeCompare(b.name);
+      });
   };
 
   const gamesWithScores = getGamesWithScores();
@@ -248,7 +269,7 @@ function Friends() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-gray-500 text-sm"></span>
+                      <span className="text-gray-500 text-sm">Players</span>
                     )}
                   </th>
                   {gamesWithScores.length === 0 ? (
