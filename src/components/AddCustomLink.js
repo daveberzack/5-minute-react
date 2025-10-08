@@ -91,7 +91,7 @@ function AddCustomLink() {
             id="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
             placeholder="Enter game name"
             required
           />
@@ -106,7 +106,7 @@ function AddCustomLink() {
             id="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
             placeholder="https://example.com"
             required
           />
@@ -119,13 +119,13 @@ function AddCustomLink() {
           <button
             type="button"
             onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between"
+            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between"
           >
             <span className="flex items-center space-x-2">
               <span className="text-2xl">{emoji}</span>
               <span className="text-blue-800">Click to choose emoji</span>
             </span>
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -151,7 +151,7 @@ function AddCustomLink() {
           <button
             type="button"
             onClick={() => setShowColorPicker(!showColorPicker)}
-            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between"
+            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800 bg-white hover:bg-blue-50 transition-colors duration-200 flex items-center justify-between"
           >
             <span className="flex items-center space-x-3">
               <div 
@@ -161,9 +161,9 @@ function AddCustomLink() {
                 {emoji}
               </div>
               <span className="text-blue-800">Click to choose color</span>
-              <span className="text-blue-600 text-sm font-mono">{backgroundColor}</span>
+              <span className="text-blue-800 text-sm font-mono">{backgroundColor}</span>
             </span>
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>

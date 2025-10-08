@@ -24,7 +24,7 @@ function GameListing({isFavorite, toggleFavorite, onGameLinkClick, game, dimGame
             />
             <div className="text-left min-w-0 flex-1 flex flex-col justify-center">
               <p className="font-bold text-base sm:text-lg truncate mb-0.5 text-blue-800">{game.name}</p>
-              <p className="text-xs sm:text-sm text-blue-600 line-clamp-2">{game.caption}</p>
+              <p className="text-xs sm:text-sm text-blue-800 line-clamp-2">{game.caption}</p>
             </div>
           </a>
           

@@ -69,7 +69,7 @@ function Signup() {
                             placeholder="Choose a username"
                             value={username}
                             onChange={(e) => { setUsername(e.target.value) }}
-                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
                         />
                     </div>
                     
@@ -82,14 +82,14 @@ function Signup() {
                             value={password}
                             onChange={(e) => { setPassword(e.target.value) }}
                             className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 ${
-                                !isPasswordValid ? 'border-red-300 focus:ring-red-500' : 'border-blue-300 focus:ring-blue-500'
+                                !isPasswordValid ? 'border-red-300 focus:ring-red-500' : 'border-blue-300 focus:ring-blue-800'
                             }`}
                         />
                         {!isPasswordValid && (
                             <p className="text-red-600 text-xs mt-1">Password must be at least 8 characters long</p>
                         )}
                         {password.length === 0 && (
-                            <p className="text-blue-600 text-xs mt-1">Minimum 8 characters required</p>
+                            <p className="text-blue-800 text-xs mt-1">Minimum 8 characters required</p>
                         )}
                     </div>
                     
@@ -115,7 +115,7 @@ function Signup() {
                 <div className="text-center pt-3 border-t border-blue-200 mt-4">
                     <p className="text-sm text-blue-800">
                         Already have an account?{' '}
-                        <a href="/login" className="text-blue-600 font-medium hover:underline transition-all duration-300">
+                        <a href="/login" className="text-blue-800 font-medium hover:underline transition-all duration-300">
                             Sign In
                         </a>
                     </p>

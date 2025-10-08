@@ -7,7 +7,9 @@ function FavoriteGame({
   onGameLinkClick,
   onDeleteCustomLink,
   onRemoveFavorite,
-  dimGame
+  dimGame,
+  onAddScore,
+  isAuthenticated
 }) {
 
   const isCustomLink = game.isCustom;
@@ -65,7 +67,7 @@ function FavoriteGame({
       
       <a
         href={game.url}
-        className="block flex hover:text-blue-600 items-center flex-1 min-w-0 mr-3 transition-colors duration-300"
+        className="block flex hover:text-blue-800 items-center flex-1 min-w-0 transition-colors duration-300"
         onClick={(e) => {
           // Only track non-custom links (actual games)
           if (!game.isCustom) {
@@ -89,8 +91,25 @@ function FavoriteGame({
             />
           )}
         </div>
-        <p className="font-bold text-left text-base sm:text-lg truncate text-blue-800 group-hover:text-blue-600 transition-colors duration-300">{game.name}</p>
+        <p className="font-bold text-left text-base sm:text-lg truncate text-blue-800 group-hover:text-blue-800 transition-colors duration-300">{game.name}</p>
       </a>
+      
+      {/* Score entry button - only show for actual games (not custom links), not in edit mode, and when user is authenticated */}
+      {!isEditMode && !game.isCustom && onAddScore && isAuthenticated && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onAddScore(game.id);
+          }}
+          className="w-6 h-6 flex items-center justify-center text-blue-800 hover:text-blue-900 transition-colors duration-200 mr-1 flex-shrink-0"
+          title="Add/Update Score"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+        </button>
+      )}
       
       {/* Delete button - only show in edit mode */}
       {isEditMode && (

@@ -221,7 +221,7 @@ function Friends() {
           <p className="text-red-600 mb-4">Error loading friends data: {friendsError}</p>
           <button
             onClick={() => loadFriendsData()}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            className="px-4 py-2 bg-blue-800 hover:bg-blue-800 text-white rounded-lg transition-colors"
           >
             Retry
           </button>
@@ -236,10 +236,10 @@ function Friends() {
       {!isEditing && (
         <div className="game-card p-4 mb-4">
           <div className="overflow-x-auto">
-            <table className="border-collapse" style={{ width: '100%' }}>
+            <table className="border-collapse w-full min-w-0">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-2 pl-4" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
+                  <th className="text-left py-3 px-2 pl-4" style={{ width: `${Math.max(usernameColumnWidth, 120)}px`, minWidth: '120px', maxWidth: `${usernameColumnWidth}px` }}>
                     {gamesWithScores.length > gamesPerPage ? (
                       <div className="flex items-center justify-start space-x-1">
                         <button
@@ -248,7 +248,7 @@ function Friends() {
                           className={`w-7 h-7 rounded flex items-center justify-center text-sm ${
                             currentGamePage === 0
                               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              : 'bg-blue-500 text-white hover:bg-blue-600'
+                              : 'bg-blue-800 text-white hover:bg-blue-800'
                           }`}
                         >
                           ←
@@ -262,7 +262,7 @@ function Friends() {
                           className={`w-7 h-7 rounded flex items-center justify-center text-sm ${
                             currentGamePage >= totalPages - 1
                               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              : 'bg-blue-500 text-white hover:bg-blue-600'
+                              : 'bg-blue-800 text-white hover:bg-blue-800'
                           }`}
                         >
                           →
@@ -279,11 +279,11 @@ function Friends() {
                   ) : (
                     <>
                       {currentPageGames.map(game => (
-                        <th key={game.id} className="text-center py-3 px-2" style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}>
+                        <th key={game.id} className="text-center py-3 px-1" style={{ width: `${gameColumnWidth}px`, minWidth: '48px', maxWidth: `${gameColumnWidth}px` }}>
                           <img
                             src={`/img/games/${game.image}`}
                             alt={game.name}
-                            className="w-12 h-12 mx-auto rounded"
+                            className="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-lg border-2 border-blue-800 shadow-sm"
                             title={game.name}
                           />
                         </th>
@@ -300,7 +300,7 @@ function Friends() {
                       player.isCurrentUser ? 'bg-blue-50' : 'hover:bg-gray-50'
                     }`}
                   >
-                    <td className="py-3 px-2 pl-4 font-medium text-gray-800 text-left" style={{ width: `${usernameColumnWidth}px`, minWidth: `${usernameColumnWidth}px` }}>
+                    <td className="py-3 px-2 pl-4 font-medium text-gray-800 text-left truncate" style={{ width: `${Math.max(usernameColumnWidth, 120)}px`, minWidth: '120px', maxWidth: `${usernameColumnWidth}px` }}>
                       {player.username}
                     </td>
                     {gamesWithScores.length === 0 ? (
@@ -317,8 +317,8 @@ function Friends() {
                           return (
                             <td
                               key={game.id}
-                              className={`text-center py-3 px-2 ${player.isCurrentUser || (hasScore && hasMessage) ? 'cursor-pointer hover:bg-blue-100' : ''}`}
-                              style={{ width: `${gameColumnWidth}px`, minWidth: `${gameColumnWidth}px` }}
+                              className={`text-center py-3 px-1 ${player.isCurrentUser || (hasScore && hasMessage) ? 'cursor-pointer hover:bg-blue-100' : ''}`}
+                              style={{ width: `${gameColumnWidth}px`, minWidth: '48px', maxWidth: `${gameColumnWidth}px` }}
                               onClick={() => handleScoreCellClick(game.id, player.isCurrentUser, player.id, player.username)}
                             >
                               {hasScore ? (
@@ -327,13 +327,13 @@ function Friends() {
                                     {scoreData.score}
                                   </span>
                                   {hasMessage && (
-                                    <div className="absolute -top-1 -right-3 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <div className="absolute -top-1 -right-3 w-3 h-3 bg-blue-800 rounded-full flex items-center justify-center">
                                       <span className="text-white text-xs">💬</span>
                                     </div>
                                   )}
                                 </div>
                               ) : player.isCurrentUser ? (
-                                <div className="text-gray-400 hover:text-blue-600 transition-colors">
+                                <div className="text-gray-400 hover:text-blue-800 transition-colors">
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mx-auto">
                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
                                   </svg>
@@ -358,7 +358,7 @@ function Friends() {
       {isEditing && (
         <>
           <ul id="friends-list" className="list-none p-0 space-y-1.5 mb-4">
-            {user?.friends?.map(f => (
+            {(friendsData?.friends || user?.friends || []).map(f => (
               <li key={f.id} className="game-card text-gray-800 py-2 px-2.5 flex justify-between items-center group">
                 <div className="flex items-center flex-1 min-w-0">
                   <span className="font-medium text-base sm:text-lg truncate">{f.username}</span>
@@ -366,13 +366,11 @@ function Friends() {
                 <button
                   data-id={f.id}
                   onClick={onClickRemove}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors duration-200 shadow-sm flex-shrink-0"
+                  className="w-8 h-8 flex items-center justify-center bg-yellow-400 border-2 border-blue-800 text-blue-800 hover:bg-yellow-300 rounded-full transition-colors duration-200 flex-shrink-0"
+                  title="Remove friend"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="w-4 h-4 sm:w-5 sm:h-5 pointer-events-none fill-current"
-                  >
-                    <path d="M19,13H5V11H19V13Z" />
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
               </li>
@@ -410,7 +408,7 @@ function Friends() {
       <div className="flex items-center justify-center space-x-4">
         <button
           onClick={toggleEditMode}
-          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors duration-200 shadow-sm"
+          className="px-6 py-2 bg-blue-800 hover:bg-blue-800 text-white text-sm rounded-lg transition-colors duration-200 shadow-sm"
         >
           {isEditing ? 'Done Editing' : 'Edit Friends List'}
         </button>

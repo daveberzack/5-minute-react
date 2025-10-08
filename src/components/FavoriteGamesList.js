@@ -5,6 +5,7 @@ import { localStorageService } from '../services/localStorageService';
 import Modal, { useModal } from './Modal';
 import AddCustomLink from './AddCustomLink';
 import FavoriteGame from './FavoriteGame';
+import { useNavigate } from 'react-router-dom';
 
 function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefaultTab = () => {} }) {
   const {
@@ -13,9 +14,11 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
     removeFavorite,
     gamesPlayedToday,
     initializeDailyTracking,
-    handleGameLinkClick
+    handleGameLinkClick,
+    isAuthenticated
   } = useAuth();
   const { isOpen: showModal, message: modalMessage, title: modalTitle, closeModal } = useModal();
+  const navigate = useNavigate();
 
   const [favoriteGames, setFavoriteGames] = useState([]);
   const [favoriteOrder, setFavoriteOrder] = useState(() => {
@@ -98,18 +101,23 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
     handleGameLinkClick(gameId, gameUrl, event);
   };
 
+  // Handle add score button clicks
+  const handleAddScore = (gameId) => {
+    navigate(`/edit-score/${gameId}`, {
+      state: { from: '/favorites' }
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-1">
       {/* Set as Default button - only show if not currently default */}
       {defaultTab !== 'favorites' && updateDefaultTab && (
-        <div className="mb-4">
           <button
             onClick={() => updateDefaultTab('favorites')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm"
+            className="bg-blue-800 text-white my-2 px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm"
           >
-            Set Favorites as Default
+            Set Favorites as Default View
           </button>
-        </div>
       )}
       
       {favoriteGames && favoriteGames.length > 0 ? (
@@ -128,6 +136,8 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
               onGameLinkClick={onGameLinkClick}
               onDeleteCustomLink={handleDeleteCustomLink}
               onRemoveFavorite={handleRemoveFavorite}
+              onAddScore={handleAddScore}
+              isAuthenticated={isAuthenticated}
               dimGame={dimGame}
             />
           })}
@@ -139,10 +149,10 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z" />
             </svg>
             <h3 className="text-xl font-bold text-blue-800 mb-2">No Favorites Yet</h3>
-            <p className="text-blue-600 mb-4">
+            <p className="text-blue-800 mb-4">
               Start building your favorites list by clicking the star icons on games in the All Games tab.
             </p>
-            <p className="text-blue-500 text-sm">
+            <p className="text-blue-800 text-sm">
               You can also add custom links here once you have some favorites!
             </p>
           </div>

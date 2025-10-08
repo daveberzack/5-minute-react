@@ -38,7 +38,7 @@ function Login() {
                             placeholder="Enter your username"
                             value={username}
                             onChange={(e)=>{ setUsername(e.target.value) }}
-                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
                         />
                     </div>
                     
@@ -50,7 +50,7 @@ function Login() {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e)=>{ setPassword(e.target.value) }}
-                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
                         />
                     </div>
                     
@@ -78,7 +78,7 @@ function Login() {
                     <div className="text-center pt-3 border-t border-blue-200">
                         <p className="text-sm text-blue-800">
                             Don't have an account?{' '}
-                            <Link to="/signup" className="text-blue-600 font-medium hover:underline transition-all duration-300">
+                            <Link to="/signup" className="text-blue-800 font-medium hover:underline transition-all duration-300">
                                 Sign Up
                             </Link>
                         </p>

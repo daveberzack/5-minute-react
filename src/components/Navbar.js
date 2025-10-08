@@ -33,7 +33,7 @@ function Navbar() {
             className={`px-3 py-1 font-bold transition-colors duration-200 ${
               isActiveTab('/')
                 ? 'bg-blue-300 text-blue-800'
-                : 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-blue-800 text-white hover:bg-blue-800'
             }`}
             style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}
           >
@@ -48,7 +48,7 @@ function Navbar() {
             className={`px-3 py-1 font-bold transition-colors duration-200 ${
               isActiveTab('/favorites')
                 ? 'bg-blue-300 text-blue-800'
-                : 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-blue-800 text-white hover:bg-blue-800'
             }`}
             style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}
           >
@@ -64,7 +64,7 @@ function Navbar() {
               className={`px-3 py-1 font-bold transition-colors duration-200 ${
                 isActiveTab('/friends')
                   ? 'bg-blue-300 text-blue-800'
-                  : 'bg-blue-600 text-white hover:bg-blue-500'
+                  : 'bg-blue-800 text-white hover:bg-blue-800'
               }`}
               style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}
             >
@@ -79,7 +79,7 @@ function Navbar() {
               className={`px-3 py-1 font-bold transition-colors duration-200 ${
                 isActiveTab('/login')
                   ? 'bg-blue-300 text-blue-800'
-                  : 'bg-blue-600 text-white hover:bg-blue-500'
+                  : 'bg-blue-800 text-white hover:bg-blue-800'
               }`}
               style={{ borderRadius: '0.3125rem 0.3125rem 0 0' }}
             >

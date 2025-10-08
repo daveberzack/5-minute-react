@@ -82,7 +82,8 @@ function EditScoreForm() {
     }
 
     return (
-        <div className="max-w-md mx-auto mt-8 bg-blue-100" style={{ borderRadius: '0.3125rem', padding: '1.5rem' }}>
+        <section className="max-w-6xl mx-auto p-2 sm:p-3 relative z-10">
+            <div className="max-w-md mx-auto mt-8 bg-blue-100" style={{ borderRadius: '0.3125rem', padding: '1.5rem' }}>
             <h3 className="text-blue-800 text-lg font-bold mb-4">
                 {score ? 'Update Score' : 'Add Score'}
             </h3>
@@ -108,10 +109,10 @@ function EditScoreForm() {
                         placeholder="e.g., 3/6, 2:45, 1250"
                         value={score}
                         onChange={(e) => setScore(e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
                         disabled={loading}
                     />
-                    <p className="text-xs text-blue-600 mt-1">
+                    <p className="text-xs text-blue-800 mt-1">
                         Enter your score in any format (numbers, fractions, time, etc.)
                     </p>
                 </div>
@@ -126,7 +127,7 @@ function EditScoreForm() {
                         placeholder="Add a note about your game..."
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-800"
                         disabled={loading}
                     />
                 </div>
@@ -148,7 +149,8 @@ function EditScoreForm() {
                     </button>
                 </div>
             </div>
-        </div>
+            </div>
+        </section>
     );
 }
 

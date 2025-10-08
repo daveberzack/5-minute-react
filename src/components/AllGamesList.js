@@ -28,14 +28,12 @@ function AllGamesList({ defaultTab = 'all', updateDefaultTab = () => {} }) {
     <div className="max-w-4xl mx-auto p-1">
       {/* Set as Default button - only show if not currently default */}
       {defaultTab !== 'all' && updateDefaultTab && (
-        <div className="mb-4">
           <button
             onClick={() => updateDefaultTab('all')}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm"
+            className="bg-blue-800 text-white px-4 py-2 my-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 text-sm"
           >
             Set All Games as Default View
           </button>
-        </div>
       )}
       
         <ul id="other-games-list" className="list-none p-0 w-full">
