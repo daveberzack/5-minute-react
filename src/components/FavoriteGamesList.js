@@ -159,8 +159,8 @@ function FavoriteGamesList({ customLinks = [], defaultTab = 'all', updateDefault
         </div>
       )}
       
-      {/* Edit Favorites Button - only show if there are favorites or custom links */}
-      {favoriteGames && favoriteGames.length > 0 && (
+      {/* Edit Favorites Button - show if there are favorites/custom links OR if currently in edit mode */}
+      {((favoriteGames && favoriteGames.length > 0) || isEditMode) && (
         <div className="mt-4">
           <button
             onClick={() => setIsEditMode(!isEditMode)}
