@@ -53,48 +53,48 @@ function Signup() {
     }
     
     return (
-        <div className="min-h-screen flex items-center justify-center p-3 relative z-10">
-            <section id="signup" className="glass-card max-w-md w-full p-4 sm:p-6 shadow-xl">
+        <div className="flex items-center justify-center p-3 relative z-10">
+            <section id="signup" className="max-w-md w-full bg-blue-100" style={{ borderRadius: '0.3125rem', padding: '1.5rem' }}>
                 <div className="text-center mb-6">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gradient mb-1">Join the Fun</h3>
-                    <p className="text-gray-600 text-sm">Create your account and start gaming</p>
+                    <h3 className="text-blue-800 text-lg font-bold mb-1">Join the Fun</h3>
+                    <p className="text-blue-800 text-sm">Create your account and start gaming</p>
                 </div>
                 
                 {/* Consolidated form (previously UserForm component) */}
                 <div className="space-y-4">
                     <div>
-                        <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <label htmlFor="signup-username" className="block text-blue-800 font-medium mb-2">Username</label>
                         <input
                             id="signup-username"
                             placeholder="Choose a username"
                             value={username}
                             onChange={(e) => { setUsername(e.target.value) }}
-                            className="form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300"
+                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
                     
                     <div>
-                        <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <label htmlFor="signup-password" className="block text-blue-800 font-medium mb-2">Password</label>
                         <input
                             type="password"
                             id="signup-password"
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => { setPassword(e.target.value) }}
-                            className={`form-input w-full px-3 py-2.5 text-sm rounded-lg shadow-sm focus:outline-none transition-all duration-300 ${
-                                !isPasswordValid ? 'border-red-300 focus:border-red-500' : ''
+                            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all duration-300 ${
+                                !isPasswordValid ? 'border-red-300 focus:ring-red-500' : 'border-blue-300 focus:ring-blue-500'
                             }`}
                         />
                         {!isPasswordValid && (
                             <p className="text-red-600 text-xs mt-1">Password must be at least 8 characters long</p>
                         )}
                         {password.length === 0 && (
-                            <p className="text-gray-500 text-xs mt-1">Minimum 8 characters required</p>
+                            <p className="text-blue-600 text-xs mt-1">Minimum 8 characters required</p>
                         )}
                     </div>
                     
                     {errorMessage && (
-                        <div className="text-red-600 text-sm bg-red-50 border border-red-200 rounded-lg p-3">
+                        <div className="text-red-700 text-sm bg-red-100 border border-red-400 rounded-lg p-3">
                             {errorMessage}
                         </div>
                     )}
@@ -102,9 +102,9 @@ function Signup() {
                     <button
                         onClick={submitForm}
                         disabled={!isFormValid || isSubmitting}
-                        className={`w-full py-2.5 px-4 text-sm rounded-lg font-medium shadow-md mt-4 transition-all duration-300 ${
+                        className={`w-full py-2 px-4 rounded-lg font-bold mt-4 transition-colors duration-200 ${
                             isFormValid && !isSubmitting
-                                ? 'btn-gradient hover:scale-105'
+                                ? 'bg-blue-800 text-white hover:bg-blue-900'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                     >
@@ -112,10 +112,10 @@ function Signup() {
                     </button>
                 </div>
                 
-                <div className="text-center pt-3 border-t border-gray-200 mt-4">
-                    <p className="text-sm text-gray-600">
+                <div className="text-center pt-3 border-t border-blue-200 mt-4">
+                    <p className="text-sm text-blue-800">
                         Already have an account?{' '}
-                        <a href="/login" className="text-gradient font-medium hover:underline transition-all duration-300">
+                        <a href="/login" className="text-blue-600 font-medium hover:underline transition-all duration-300">
                             Sign In
                         </a>
                     </p>

@@ -79,8 +79,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Friends data management functions
-    const loadFriendsData = async () => {
-        if (friendsData || friendsLoading) return friendsData; // Already loaded or loading
+    const loadFriendsData = async (forceRefresh = false) => {
+        // Only skip loading if we have data AND we're not forcing a refresh AND we're not already loading
+        if (friendsData && !forceRefresh && !friendsLoading) return friendsData;
+        
+        // If already loading, wait for it to complete
+        if (friendsLoading && !forceRefresh) return friendsData;
         
         setFriendsLoading(true);
         setFriendsError(null);

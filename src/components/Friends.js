@@ -51,7 +51,7 @@ function Friends() {
     // If we were editing and now we're done editing, refresh friends data
     if (wasEditing && !isEditing) {
       try {
-        await loadFriendsData();
+        await loadFriendsData(true); // Force refresh after editing
       } catch (error) {
         console.error('Error refreshing friends data after editing:', error);
       }
@@ -323,7 +323,7 @@ function Friends() {
                             >
                               {hasScore ? (
                                 <div className="relative inline-block">
-                                  <span className="text-gray-800 font-medium text-sm">
+                                  <span className="text-gray-800 font-medium text-med">
                                     {scoreData.score}
                                   </span>
                                   {hasMessage && (

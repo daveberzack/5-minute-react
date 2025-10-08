@@ -82,24 +82,24 @@ function EditScoreForm() {
     }
 
     return (
-        <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-            <h3 className="text-xl font-bold mb-4 text-gray-800">
+        <div className="max-w-md mx-auto mt-8 bg-blue-100" style={{ borderRadius: '0.3125rem', padding: '1.5rem' }}>
+            <h3 className="text-blue-800 text-lg font-bold mb-4">
                 {score ? 'Update Score' : 'Add Score'}
             </h3>
             
             {gameName && (
-                <p className="text-gray-600 mb-4">Game: {gameName}</p>
+                <p className="text-blue-800 mb-4">Game: {gameName}</p>
             )}
 
             {error && (
-                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                     {error}
                 </div>
             )}
 
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="score-field" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="score-field" className="block text-blue-800 font-medium mb-2">
                         Score
                     </label>
                     <input
@@ -108,16 +108,16 @@ function EditScoreForm() {
                         placeholder="e.g., 3/6, 2:45, 1250"
                         value={score}
                         onChange={(e) => setScore(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={loading}
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-blue-600 mt-1">
                         Enter your score in any format (numbers, fractions, time, etc.)
                     </p>
                 </div>
 
                 <div>
-                    <label htmlFor="message-field" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="message-field" className="block text-blue-800 font-medium mb-2">
                         Message (optional)
                     </label>
                     <input
@@ -126,7 +126,7 @@ function EditScoreForm() {
                         placeholder="Add a note about your game..."
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={loading}
                     />
                 </div>
@@ -135,14 +135,14 @@ function EditScoreForm() {
                     <button
                         onClick={submit}
                         disabled={loading}
-                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-blue-800 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-900 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {loading ? 'Saving...' : 'Save Score'}
                     </button>
                     <button
                         onClick={cancel}
                         disabled={loading}
-                        className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Cancel
                     </button>

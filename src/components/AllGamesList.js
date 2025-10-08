@@ -25,7 +25,7 @@ function AllGamesList({ defaultTab = 'all', updateDefaultTab = () => {} }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl mx-auto p-1">
       {/* Set as Default button - only show if not currently default */}
       {defaultTab !== 'all' && updateDefaultTab && (
         <div className="mb-4">

@@ -13,14 +13,13 @@ function FavoriteGame({
   const isCustomLink = game.isCustom;
   
   // All items have consistent styling with full rounded corners
-  let itemStyle = { margin: '0.3125rem', borderRadius: '0.3125rem' };
-  if (dimGame) itemStyle.backgroundColor = "#FFFFFF99";
+  let bgOpacity = 100;
+  if (dimGame) bgOpacity = 50;
 
   return (
     <li
       key={game.id}
-      className={`text-blue-800 py-1.5 px-2 flex justify-between items-center group relative transition-all duration-200 bg-white`}
-      style={itemStyle}
+      className={`text-blue-800 py-1.5 px-2 flex justify-between items-center group relative transition-all duration-200 my-1 rounded-lg bg-white bg-opacity-${bgOpacity}`}
     >
       {/* Up/Down buttons - only show in edit mode */}
       {isEditMode && (
@@ -77,7 +76,7 @@ function FavoriteGame({
         <div className="relative">
           {isCustomLink ? (
             <div
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300 flex items-center justify-center text-2xl sm:text-3xl"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-blue-800 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300 flex items-center justify-center text-2xl sm:text-3xl"
               style={{ backgroundColor: game.backgroundColor || '#4F46E5' }}
             >
               {game.emoji || '🎮'}
@@ -85,7 +84,7 @@ function FavoriteGame({
           ) : (
             <img
               src={"./img/games/"+game.image}
-              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-gray-200 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg border-2 border-blue-800 mr-3 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300"
               alt={game.name}
             />
           )}
