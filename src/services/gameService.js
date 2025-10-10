@@ -5,8 +5,6 @@
 
 import { apiClient } from './apiClient';
 
-// ===== GAME PLAY OPERATIONS =====
-
 /**
  * Update or create a game play record
  * @param {Object} playData - The play data
@@ -27,15 +25,6 @@ export const updateGamePlay = async (playData) => {
     throw error;
   }
 };
-
-// Note: Game play retrieval functions removed - now handled by friends dashboard endpoint
-// Individual game play operations are managed through the AuthContext
-
-// ===== USER GAME INTERACTIONS =====
-// Note: Favorites are now handled client-side only via localStorage
-// See localStorageService for favorites management
-
-// ===== FRIEND OPERATIONS =====
 
 /**
  * Get friends dashboard data (user, friends, today's plays)
@@ -94,9 +83,3 @@ export const searchUser = async (username) => {
     throw error;
   }
 };
-
-// ===== LEGACY COMPATIBILITY =====
-// Note: All legacy functions removed - use AuthContext functions instead
-// - updatePlay -> use updatePlay from AuthContext
-// - addFavorite/removeFavorite -> use localStorageService directly
-// - getUserGamePlays/getGamePlayForToday/hasScoreForToday -> use AuthContext functions

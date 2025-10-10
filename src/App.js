@@ -76,7 +76,7 @@ function App() {
     };
 
     checkAutoRedirect();
-  }, [isAuthenticated, isLoading, location.pathname, navigate]);
+  }, [isAuthenticated, isLoading, location.pathname, location.key, navigate]);
 
   const updateDefaultTab = (tab) => {
     setDefaultTab(tab);
